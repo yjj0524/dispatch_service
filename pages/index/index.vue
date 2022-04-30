@@ -25,7 +25,7 @@
 				<image class="img_2" src="@/static/index/arrow.png" mode=""></image>
 			</view>
 		</view>
-		<view class="item">
+		<view class="item" @click="JumpToStatistics">
 			<view class="item_container">
 				<image class="img_1" src="@/static/index/statistics.png" mode=""></image>
 				<text class="title">预约调度统计</text>
@@ -60,6 +60,11 @@
 			JumpToHealthReport() {
 				uni.navigateTo({
 					url: '../healthReport/healthReport'
+				});
+			},
+			JumpToStatistics() {
+				uni.navigateTo({
+					url: '../statistics/statistics'
 				});
 			},
 		}

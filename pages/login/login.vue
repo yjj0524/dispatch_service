@@ -35,7 +35,8 @@
 	</view>
 </template>
 <script>
-	import user from '@/api/login.js'
+	import user from '@/api/loginApi.js'
+
 	export default {
 		data() {
 			return {

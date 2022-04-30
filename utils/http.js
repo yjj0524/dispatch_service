@@ -1,9 +1,15 @@
 // const baseUrl = 'http://www.shsninfo.com:5500';
 const baseUrl = 'http://www.shsninfo.com:1238';
 const request = (opts) => {
+	let url = '';
+	// #ifdef H5
+	url = `/api${opts.url}`
+	// #endif
+	// #ifdef APP-PLUS || MP
+	url = baseUrl + opts.url;
+	// #endif
 	var httpDefaultOpts = {
-		// url: baseUrl + opts.url,
-		url: `/api${opts.url}`,
+		url: url,
 		data: opts.data,
 		beforeSend: function(xmlHttp) {
 			xmlHttp.setRequestHeader("If-Modified-Since", "0");
@@ -17,18 +23,18 @@ const request = (opts) => {
 		} : {
 			// 'content-type': 'application/x-www-form-urlencoded',
 			'content-type': 'application/json',
-			
+
 		},
 		dataType: 'json',
 	}
 	var promise = new Promise(function(resolve, reject) {
 		uni.request(httpDefaultOpts).then(
 			(res) => {
-				resolve(res[1])
+				resolve(res[1]);
 			}
 		).catch(
 			(response) => {
-				reject(response)
+				reject(response);
 			}
 		)
 	})
