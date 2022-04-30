@@ -1,0 +1,104 @@
+{
+	"name": "农机预约调度服务",
+	"appid": "__UNI__7896E0C",
+	"description": "",
+	"versionName": "1.0.0",
+	"versionCode": "100",
+	"transformPx": false,
+	/* 5+App特有相关 */
+	"app-plus": {
+		"usingComponents": true,
+		"nvueStyleCompiler": "uni-app",
+		"compilerVersion": 3,
+		"splashscreen": {
+			//首页白屏时不关闭启动界面
+			"alwaysShowBeforeRender": false,
+			//是否在程序启动界面显示等待圈或雪花
+			"waiting": true,
+			//是否自动关闭程序启动界面。如果需要手动关闭启动界面，需将 alwaysShowBeforeRender 及 autoclose 均设置为 false。
+			"autoclose": true,
+			//启动界面在应用的首页面加载完毕后延迟关闭的时间，autoclose 为 true 时生效。
+			"delay": 2000
+		},
+		/* 模块配置 */
+		"modules": {},
+		/* 应用发布信息 */
+		"distribute": {
+			/* android打包配置 */
+			"android": {
+				"permissions": [
+					"<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.MOUNT_UNMOUNT_FILESYSTEMS\"/>",
+					"<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+					"<uses-permission android:name=\"android.permission.READ_LOGS\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+					"<uses-feature android:name=\"android.hardware.camera.autofocus\"/>",
+					"<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.CAMERA\"/>",
+					"<uses-permission android:name=\"android.permission.GET_ACCOUNTS\"/>",
+					"<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.CHANGE_WIFI_STATE\"/>",
+					"<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>",
+					"<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>",
+					"<uses-feature android:name=\"android.hardware.camera\"/>",
+					"<uses-permission android:name=\"android.permission.WRITE_SETTINGS\"/>"
+				]
+			},
+			/* ios打包配置 */
+			"ios": {},
+			/* SDK配置 */
+			"sdkConfigs": {},
+			"splashscreen": {
+				"androidStyle": "default",
+				"android": {
+					"hdpi": "static/start.png",
+					"xhdpi": "static/start.png",
+					"xxhdpi": "static/start.png"
+				},
+				"iosStyle": "common",
+				"ios": {
+					"storyboard": ""
+				}
+			}
+		}
+	},
+	/* 快应用特有相关 */
+	"quickapp": {},
+	/* 小程序特有相关 */
+	"mp-weixin": {
+		"appid": "",
+		"setting": {
+			"urlCheck": false
+		},
+		"usingComponents": true
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "2",
+	"h5" : {
+	    "devServer" : {
+	        "port" : 8080, //应用程序端口
+	        "disableHostCheck" : true,
+	        "proxy" : {
+	            "/api" : {
+	                "target" : "http://www.shsninfo.com:1238", //域名
+	                "changeOrigin" : true,
+	                "secure" : false,
+	                "pathRewrite" : {
+	                    "^/api" : ""
+	                }
+	            }
+	        }
+	    }
+	}
+}
