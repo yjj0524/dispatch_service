@@ -23,21 +23,22 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) of 10" :key="index">
+				<view class="information_item" v-for="(item, index) in peasant_household_datas" :key="index">
 					<view class="information">
 						<image class="portrait" src="@/static/booking/portrait.png" mode=""></image>
-						<text class="title">李小四</text>
+						<text class="title">{{ item.ztmc }}</text>
 						<button class="dispatch_btn" type="default" @click="show_confirmation_box = true">派遣</button>
 					</view>
 					<view class="item state">
 						<text class="title">耕作面积 :</text>
-						<text class="result">100亩</text>
+						<text class="result">{{ item.zmj }}亩</text>
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
-						<text class="result">村镇</text>
+						<text class="result">{{ item.zb }}</text>
 					</view>
 				</view>
+				<view class="more" v-if="peasant_household_datas.length">更多</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
@@ -56,6 +57,7 @@
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
+	import user from '@/api/api.js';
 
 	export default {
 		components: {
@@ -98,12 +100,31 @@
 				],
 				area_default_index: [2],
 				show_confirmation_box: false,
+				peasant_household_datas: [],
 			}
+		},
+		onLoad() {
+			this.GetJingYingZhuTiPage(10, 1);
 		},
 		mounted() {
 
 		},
 		methods: {
+			// 获取经营主体(分页获取)
+			GetJingYingZhuTiPage(rows, page) {
+				let self = this;
+				
+				user.JingYingZhuTi({
+					'rows': rows,
+					'page': page,
+				}).then(res => {
+					console.log(res);
+					
+					if (res.data.code == 200) {
+						this.peasant_household_datas = res.data.data.rows;
+					}
+				})
+			},
 			// 显示确认框
 			ShowConfirmationBox() {
 				this.show_confirmation_box = true;
@@ -246,6 +267,16 @@
 					font-size: 30rpx;
 					color: #999999;
 				}
+			}
+			
+			.more {
+				width: 10vw;
+				height: 50rpx;
+				line-height: 50rpx;
+				font-size: 35rpx;
+				margin: 1vh 0 0 45vw;
+				text-align: center;
+				color: red;
 			}
 		}
 	}

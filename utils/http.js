@@ -8,6 +8,7 @@ const request = (opts) => {
 	// #ifdef APP-PLUS || MP
 	url = baseUrl + opts.url;
 	// #endif
+	let token = uni.getStorageSync('user_info')?.token;
 	var httpDefaultOpts = {
 		url: url,
 		data: opts.data,
@@ -19,11 +20,12 @@ const request = (opts) => {
 		header: opts.method == 'GET' ? {
 			'X-Requested-With': 'XMLHttpRequest',
 			"Accept": "application/json",
-			"Content-Type": "application/json; charset=UTF-8"
+			"Content-Type": "application/json; charset=UTF-8",
+			"token": token,
 		} : {
 			// 'content-type': 'application/x-www-form-urlencoded',
 			'content-type': 'application/json',
-
+			"token": token,
 		},
 		dataType: 'json',
 	}

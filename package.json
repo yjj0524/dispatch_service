@@ -29,6 +29,7 @@
     ]
   },
   "dependencies": {
-    "@qiun/ucharts": "^2.4.2-20220420"
+    "@qiun/ucharts": "^2.4.2-20220420",
+    "js-md5": "^0.7.3"
   }
 }

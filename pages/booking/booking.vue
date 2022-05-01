@@ -23,10 +23,10 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) of 10" :key="index">
+				<view class="information_item" v-for="(item, index) in farmer_datas" :key="index">
 					<view class="information">
 						<image class="portrait" src="@/static/booking/portrait.png" mode=""></image>
-						<text class="title">李小四</text>
+						<text class="title">{{ item.xingMing }}</text>
 						<button class="booking_btn" type="default" @click="JumpToBookingArrange">预约</button>
 					</view>
 					<view class="item state">
@@ -35,11 +35,11 @@
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
-						<text class="result">村镇</text>
+						<text class="result">{{ item.zhuZhi }}</text>
 					</view>
 					<view class="item machine">
 						<text class="title">农机持有 :</text>
-						<text class="result">插秧机</text>
+						<text class="result">{{ item.zhunJiaJiXing }}</text>
 					</view>
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
@@ -49,6 +49,7 @@
 						<image class="arrow" src="@/static/index/arrow.png" mode=""></image>
 					</view>
 				</view>
+				<view class="more" v-if="farmer_datas.length">更多</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
@@ -63,7 +64,8 @@
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
-	
+	import user from '@/api/api.js'
+
 	export default {
 		components: {
 			Navbar,
@@ -104,12 +106,39 @@
 					],
 				],
 				farmer_default_index: [2],
+				// 农机驾驶员数据
+				farmer_datas: [],
 			}
+		},
+		onLoad() {
+			this.GetNongJiJiaShiYuanPage(10, 1);
 		},
 		mounted() {
 
 		},
 		methods: {
+			// 获取农机驾驶员(分页获取)
+			GetNongJiJiaShiYuanPage(rows, page) {
+				let self = this;
+				
+				user.nongJiJiaShiYuanPage({
+					'rows': rows,
+					'page': page,
+				}).then(res => {
+					console.log(res);
+					
+					if (res.data.code == 200) {
+						this.farmer_datas = res.data.data.rows;
+					}
+				})
+			},
+			// 获取农机准驾车型代号
+			// GetNJZJCXDH(f_id) {
+			// 	user.NJZJCXDH(f_id).then((res) => {
+			// 		console.log(res);
+			// 	})
+			// },
+			// 跳转到农机预约安排页
 			JumpToBookingArrange() {
 				uni.navigateTo({
 					url: '../bookingArrange/bookingArrange'
@@ -133,8 +162,6 @@
 			display: flex;
 			flex-direction: column;
 			background: white;
-			// margin-top: 4.4vh;
-			// margin-top: 2.8vh;
 			border-bottom: 1rpx solid #e5e5e5;
 
 			.search_item {
@@ -242,37 +269,49 @@
 				padding: 0 3vw;
 				font-size: 35rpx;
 				border-bottom: 1rpx solid #e5e5e5;
-				
+
 				.result {
 					font-size: 30rpx;
 					color: #999999;
 				}
 			}
-			
+
 			.healthy_prove {
 				height: 120rpx;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
 				padding: 0 3vw;
+				border-bottom: 1rpx solid #e5e5e5;
+
 				.title {
 					font-size: 35rpx;
 				}
-				
+
 				.photo_container {
 					width: 65vw;
-					
+
 					.photo {
 						width: 15vw;
 						height: 10vw;
 						margin-left: 1vw;
 					}
 				}
-				
+
 				.arrow {
 					width: 20rpx;
 					height: 30rpx;
 				}
+			}
+			
+			.more {
+				width: 10vw;
+				height: 50rpx;
+				line-height: 50rpx;
+				font-size: 35rpx;
+				margin: 1vh 0 0 45vw;
+				text-align: center;
+				color: red;
 			}
 		}
 	}

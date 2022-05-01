@@ -35,7 +35,7 @@
 	</view>
 </template>
 <script>
-	import user from '@/api/loginApi.js'
+	import user from '@/api/api.js'
 
 	export default {
 		data() {
@@ -66,44 +66,57 @@
 			this.$refs.uForm.setRules(this.rules);
 		},
 		created() {},
+		mounted() {
+			this.GetUserInfo();
+		},
 		methods: {
 			// 显示密码
 			isShowPasswordClick() {
 				this.isShowPassword = !this.isShowPassword;
 			},
+			// 获取用户信息
+			GetUserInfo() {
+				let user_info = this.$utils.getStorage("user_info");
+				
+				if (user_info) {
+					this.form.account = user_info.user.f_Account;
+					this.form.password = user_info.user.f_password;
+				}
+			},
 			// 登录
 			submit() {
 				let self = this;
+				let username = self.form.account.trim();
+				let password = self.$md5(self.form.password.trim());
 
 				user.login({
-					"account": "xxzx001",
-					"password": "e10adc3949ba59abbe56e057f20f883e"
+					"account": username,
+					"password": password
 				}).then(res => {
 					// console.log(res);
-					switch (res.data.code) {
-						case 200:
-							self.$refs.uToast.show({
-								type: 'success',
-								position: 'bottom',
-								duration: 1000,
-								message: "登录成功",
-								iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/success.png',
-								complete() {
-									uni.reLaunch({
-										url: '/pages/index/index'
-									});
-								}
-							})
-							break;
-						case 400:
-							self.$refs.uToast.show({
-								type: 'error',
-								position: 'bottom',
-								duration: 2000,
-								message: "账号或密码错误",
-								iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/error.png',
-							})
-							break;
+					if (res.data.code == 200) {
+						res.data.data.user.f_password = self.form.password;
+						self.$utils.setStorage("user_info", res.data.data);
+						self.$refs.uToast.show({
+							type: 'success',
+							position: 'bottom',
+							duration: 1000,
+							message: "登录成功",
+							iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/success.png',
+							complete() {
+								uni.reLaunch({
+									url: '/pages/index/index'
+								});
+							}
+						})
+					} else {
+						self.$refs.uToast.show({
+							type: 'error',
+							position: 'bottom',
+							duration: 2000,
+							message: res.data.info,
+							iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/error.png',
+						})
 					}
 				});
 
