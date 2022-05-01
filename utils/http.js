@@ -1,14 +1,15 @@
 // const baseUrl = 'http://www.shsninfo.com:5500';
 const baseUrl = 'http://www.shsninfo.com:1238';
 const request = (opts) => {
-	let url = '';
 	// #ifdef H5
-	url = `/api${opts.url}`
+	// const url = process.env.NODE_ENV == "development" ? `/api${opts.url}` : baseUrl + opts.url;
+	// const url = `/api${opts.url}`;
+	const url = baseUrl + opts.url;
 	// #endif
 	// #ifdef APP-PLUS || MP
 	url = baseUrl + opts.url;
 	// #endif
-	let token = uni.getStorageSync('user_info')?.token;
+	const token = uni.getStorageSync('user_info')?.token;
 	var httpDefaultOpts = {
 		url: url,
 		data: opts.data,
@@ -24,7 +25,7 @@ const request = (opts) => {
 			"token": token,
 		} : {
 			// 'content-type': 'application/x-www-form-urlencoded',
-			'content-type': 'application/json',
+			'content-type': 'application/json; charset=UTF-8',
 			"token": token,
 		},
 		dataType: 'json',
