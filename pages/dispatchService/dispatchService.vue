@@ -3,12 +3,12 @@
 		<Navbar title="农机调度服务" icon_color="#ffffff" title_color="#ffffff" border_bottom_color="transparent" />
 		<view class="information_container">
 			<view class="information">
-				<image class="portrait" src="@/static/booking/portrait.png" mode=""></image>
+				<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 				<text class="title">李小四</text>
 			</view>
 			<view class="item state">
 				<text class="title">状态 :</text>
-				<text class="result">可执行</text>
+				<text class="result allow">可执行</text>
 			</view>
 			<view class="item villages_town">
 				<text class="title">村镇 :</text>
@@ -17,12 +17,12 @@
 			<view class="item farmer" @click="JumpToDispatchFarmer">
 				<text class="title">派遣农户 :</text>
 				<text class="result">{{ farmer_data }}</text>
-				<image class="img" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 			<view class="item date_time" @click="show_datetime = true">
 				<text class="title">操作时间 :</text>
 				<text class="result">{{ select_datetime }}</text>
-				<image class="img" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 			<view class="item work_time">
 				<text class="title">预计工作时间 :</text>
@@ -31,15 +31,15 @@
 			<view class="item machine" @click="JumpToDispatchMachine">
 				<text class="title">操作农机 :</text>
 				<text class="result">{{ machine_data }}</text>
-				<image class="img" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 			<view class="healthy_prove">
 				<text class="title">健康证明 :</text>
 				<view class="photo_container">
-					<image class="photo" src="@/static/booking/photo.png" mode=""></image>
-					<image class="photo" src="@/static/booking/photo.png" mode=""></image>
+					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
+					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
 				</view>
-				<image class="img" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 		<button class="submit_booking_btn" type="default" @click="SubmitBooking">提 交 调 度</button>
@@ -52,7 +52,7 @@
 			<view class="item_1"></view>
 			<view class="item_2"></view>
 			<view class="item_3">
-				<image class="success_img" src="@/static/success.png" mode=""></image>
+				<image class="success_img" src="@/static/images/booking/success.png" mode=""></image>
 				<text class="success_title">调度成功</text>
 				<u-button class="back_btn" :ripple="true" @click="BackToIndex">返 回 首 页</u-button>
 			</view>
@@ -143,7 +143,7 @@
 		width: 100vw;
 		height: 100vh;
 		background: #f0f0f0;
-		background-image: url("@/static/index/bg.png");
+		background-image: url("@/static/images/index/bg.png");
 		background-size: 100vw 23vh;
 		background-position: top center;
 		background-repeat: no-repeat;
@@ -192,6 +192,10 @@
 					width: 57vw;
 					text-align: right;
 					color: #999999;
+				}
+				
+				.allow {
+					color: #05a310;
 				}
 
 				.img {

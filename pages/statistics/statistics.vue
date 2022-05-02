@@ -130,7 +130,7 @@
 		width: 100vw;
 		height: 100vh;
 		background: #f0f0f0;
-		background-image: url("@/static/index/bg.png");
+		background-image: url("@/static/images/index/bg.png");
 		background-size: 100vw 23vh;
 		background-position: top center;
 		background-repeat: no-repeat;

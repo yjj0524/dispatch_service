@@ -4,20 +4,20 @@
 		<view class="search_container">
 			<view class="search_item">
 				<view class="search">
-					<image class="search_img" src="@/static/booking/search.png" mode=""></image>
+					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
 					<input class="search_input" type="text" value="" placeholder="输入姓名" />
 				</view>
 				<button class="search_btn" type="default">搜索</button>
 			</view>
 			<view class="select_item">
 				<view class="item" @click="village_show = true">
-					<text class="title">{{ village_value }}</text>
-					<image class="img" src="@/static/booking/arrow.png" mode=""></image>
+					<view class="title">{{ village_value }}</view>
+					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
 
 				<view class="item" @click="farmer_show = true">
-					<text class="title">{{ farmer_value }}</text>
-					<image class="img" src="@/static/booking/arrow.png" mode=""></image>
+					<view class="title">{{ farmer_value }}</view>
+					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
 			</view>
 		</view>
@@ -25,13 +25,13 @@
 			<scroll-view scroll-y="true" style="height: 80vh;">
 				<view class="information_item" v-for="(item, index) in farmer_datas" :key="index">
 					<view class="information">
-						<image class="portrait" src="@/static/booking/portrait.png" mode=""></image>
+						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.xingMing }}</text>
 						<button class="booking_btn" type="default" @click="JumpToBookingArrange">预约</button>
 					</view>
 					<view class="item state">
 						<text class="title">状态 :</text>
-						<text class="result">可执行</text>
+						<text class="result allow">可执行</text>
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
@@ -44,25 +44,26 @@
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
 						<view class="photo_container">
-							<image class="photo" src="@/static/booking/photo.png" mode=""></image>
+							<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
 						</view>
-						<image class="arrow" src="@/static/index/arrow.png" mode=""></image>
+						<image class="arrow" src="@/static/images/index/arrow.png" mode=""></image>
 					</view>
 				</view>
 				<view class="more_container">
-					<u-loading-icon class="loading_icon" timing-function="linear" mode="circle" :vertical="true"
-						:show="show_loading"></u-loading-icon>
-					<view class="more" v-show="!show_loading" @click="loading_more">更多</view>
+					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
+						v-show="show_loading" />
+					<view class="more" v-show="!show_loading" @click="loading_more">加载更多</view>
 				</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
-			@close="village_show = false" @cancel="village_show = false" :defaultIndex="village_default_index">
+			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage"
+			:defaultIndex="village_default_index">
 		</u-picker>
 		<!-- 农民选项 -->
 		<u-picker :show="farmer_show" :columns="farmer_columns" :closeOnClickOverlay="true" @close="farmer_show = false"
-			@cancel="farmer_show = false" :defaultIndex="farmer_default_index"></u-picker>
+			@cancel="farmer_show = false" @confirm="SelectFarmer" :defaultIndex="farmer_default_index"></u-picker>
 	</view>
 </template>
 
@@ -94,7 +95,7 @@
 						'村十',
 					],
 				],
-				village_default_index: [5],
+				village_default_index: [0],
 				farmer_show: false,
 				farmer_value: '农民状态',
 				farmer_columns: [
@@ -111,7 +112,7 @@
 						'状态十',
 					],
 				],
-				farmer_default_index: [2],
+				farmer_default_index: [0],
 				// 农机驾驶员数据
 				farmer_datas: [],
 			}
@@ -142,6 +143,7 @@
 					}
 				})
 			},
+			// 加载更多
 			loading_more() {
 				this.GetNongJiJiaShiYuanPage(this.page_index);
 			},
@@ -151,6 +153,20 @@
 			// 		console.log(res);
 			// 	})
 			// },
+			// 选择村
+			SelectVillage(e) {
+				// console.log(e);
+				this.village_value = e.value[0];
+				this.village_default_index = e.indexs;
+				this.village_show = false;
+			},
+			// 选择农民状态
+			SelectFarmer(e) {
+				// console.log(e);
+				this.farmer_value = e.value[0];
+				this.farmer_default_index = e.indexs;
+				this.farmer_show = false;
+			},
 			// 跳转到农机预约安排页
 			JumpToBookingArrange() {
 				uni.navigateTo({
@@ -209,7 +225,7 @@
 					width: 25vw;
 					height: 4.5vh;
 					line-height: 4.5vh;
-					border-radius: 40rpx;
+					border-radius: 60rpx;
 					font-size: 35rpx;
 					color: white;
 					background-image: linear-gradient(#3dbffc, #4a71fc);
@@ -223,10 +239,13 @@
 				align-items: center;
 
 				.item {
-					margin: 0 20vw 0 5vw;
+					width: 50vw;
+					display: flex;
+					align-items: center;
 
 					.title {
-						margin-right: 3vw;
+						width: 20vw;
+						margin-left: 5vw;
 					}
 
 					.img {
@@ -286,6 +305,10 @@
 				.result {
 					font-size: 30rpx;
 					color: #999999;
+				}
+
+				.allow {
+					color: #05a310;
 				}
 			}
 

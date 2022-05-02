@@ -4,7 +4,7 @@
 		<view class="search_container">
 			<view class="search_item">
 				<view class="search">
-					<image class="search_img" src="@/static/booking/search.png" mode=""></image>
+					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
 					<input class="search_input" type="text" value="" placeholder="输入姓名" />
 				</view>
 				<button class="search_btn" type="default">搜索</button>
@@ -12,7 +12,7 @@
 			<view class="select_item">
 				<view class="item" @click="village_show = true">
 					<text class="title">{{ village_value }}</text>
-					<image class="img" src="@/static/booking/arrow.png" mode=""></image>
+					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
 			</view>
 		</view>
@@ -25,7 +25,7 @@
 							<u-index-anchor :text="indexList[index]"></u-index-anchor>
 							<!-- #endif -->
 							<view class="list_cell" v-for="(cell, index) in item" :key="index">
-								<image class="portrait_img" src="@/static/booking/portrait.png" mode=""></image>
+								<image class="portrait_img" src="@/static/images/booking/portrait.png" mode=""></image>
 								<view class="message">
 									<text class="title">{{ cell }}</text>
 									<text class="villages_town">村镇</text>
@@ -156,7 +156,7 @@
 					width: 25vw;
 					height: 4.5vh;
 					line-height: 4.5vh;
-					border-radius: 40rpx;
+					border-radius: 60rpx;
 					font-size: 35rpx;
 					color: white;
 					background-image: linear-gradient(#3dbffc, #4a71fc);

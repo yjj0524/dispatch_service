@@ -1,35 +1,35 @@
 <template>
 	<view class="index_container">
 		<view class="item_img">
-			<image class="img" src="@/static/login/tractor.png" mode=""></image>
+			<image class="img" src="@/static/images/login/tractor.png" mode=""></image>
 			<text class="title">农机预约调度服务</text>
 		</view>
 		<view class="item" @click="JumpToBooking">
 			<view class="item_container">
-				<image class="img_1" src="@/static/index/booking.png" mode=""></image>
+				<image class="img_1" src="@/static/images/index/booking.png" mode=""></image>
 				<text class="title">农机预约安排</text>
-				<image class="img_2" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img_2" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 		<view class="item" @click="JumpToBookingList">
 			<view class="item_container">
-				<image class="img_1" src="@/static/index/dispatch.png" mode=""></image>
+				<image class="img_1" src="@/static/images/index/dispatch.png" mode=""></image>
 				<text class="title">农机调度服务</text>
-				<image class="img_2" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img_2" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 		<view class="item" @click="JumpToHealthReport">
 			<view class="item_container">
-				<image class="img_1" src="@/static/index/healthy.png" mode=""></image>
+				<image class="img_1" src="@/static/images/index/healthy.png" mode=""></image>
 				<text class="title">每日健康申报</text>
-				<image class="img_2" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img_2" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 		<view class="item" @click="JumpToStatistics">
 			<view class="item_container">
-				<image class="img_1" src="@/static/index/statistics.png" mode=""></image>
+				<image class="img_1" src="@/static/images/index/statistics.png" mode=""></image>
 				<text class="title">预约调度统计</text>
-				<image class="img_2" src="@/static/index/arrow.png" mode=""></image>
+				<image class="img_2" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 	</view>
@@ -39,11 +39,11 @@
 	export default {
 		data() {
 			return {
-				
+
 			}
 		},
 		mounted() {
-			
+
 		},
 		methods: {
 			// 跳转到预约页
@@ -76,7 +76,7 @@
 		width: 100vw;
 		height: 100vh;
 		background: #f0f0f0;
-		background-image: url("@/static/index/index_bg.png");
+		background-image: url("@/static/images/index/index_bg.png");
 		background-size: 100vw 30vh;
 		background-position: top center;
 		background-repeat: no-repeat;

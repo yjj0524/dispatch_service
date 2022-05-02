@@ -2,20 +2,20 @@
 	<view class="login_container">
 		<!-- logo -->
 		<view class="logo_container">
-			<image class="logo_img" src="@/static/login/tractor.png" mode="aspectFit"></image>
+			<image class="logo_img" src="@/static/images/login/tractor.png" mode="aspectFit"></image>
 		</view>
 		<!-- 登录 -->
 		<u--form :model="form" ref="uForm" class="u_form">
 			<u-form-item label="" prop="account">
 				<view class="dev">
-					<image src="@/static/login/account.png" mode="aspectFit"></image>
+					<image src="@/static/images/login/account.png" mode="aspectFit"></image>
 					<u-input border="false" class="input" v-model="form.account" placeholder="输入账号"
 						placeholderStyle="color: #999999" />
 				</view>
 			</u-form-item>
 			<u-form-item label="" prop="password">
 				<view class="dev">
-					<image src="@/static/login/password.png" mode="aspectFit"></image>
+					<image src="@/static/images/login/password.png" mode="aspectFit"></image>
 					<u--input border="false" v-show="!isShowPassword" class="input" type="password"
 						v-model="form.password" placeholder="输入密码" placeholderStyle="color: #999999" />
 					</u--input>
@@ -23,7 +23,7 @@
 						placeholder="输入密码" placeholderStyle="color: #999999" />
 					</u--input>
 					<image class="eye_img"
-						:src="isShowPassword ? '../../static/login/show_password.png' : '../../static/login/hide_password.png'"
+						:src="isShowPassword ? '../../static/images/login/show_password.png' : '../../static/images/login/hide_password.png'"
 						mode="aspectFit" @click="isShowPasswordClick">
 					</image>
 				</view>
@@ -32,7 +32,7 @@
 		<u-button class="submit_btn" :ripple="true" @click="submit">登 录</u-button>
 		<u--text class="version" align="center" color="#999999" text="版本号: V.01.01"></u--text>
 		<view class="loading_container" v-show="show_loading">
-			<u-loading-icon class="loading_icon" text="登录中" timing-function="linear" mode="circle" :vertical="true" :show="show_loading"></u-loading-icon>
+			<u-loadmore class="loading_icon" status="loading" loadingText="登录中" loadingIcon="spinner" />
 		</view>
 		<u-toast ref="uToast"></u-toast>
 	</view>
@@ -100,7 +100,7 @@
 					"account": username,
 					"password": password
 				}).then(res => {
-					// console.log(res);
+					console.log(res);
 					self.show_loading = false;
 					if (res.data.code == 200) {
 						res.data.data.user.f_password = self.form.password;
@@ -154,7 +154,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: flex-start;
-			background-image: url('@/static/login/bg.png');
+			background-image: url('@/static/images/login/bg.png');
 			background-size: 100% 100%;
 
 			.logo_img {
