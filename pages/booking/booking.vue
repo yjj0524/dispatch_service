@@ -49,7 +49,11 @@
 						<image class="arrow" src="@/static/index/arrow.png" mode=""></image>
 					</view>
 				</view>
-				<view class="more" v-if="farmer_datas.length">更多</view>
+				<view class="more_container">
+					<u-loading-icon class="loading_icon" timing-function="linear" mode="circle" :vertical="true"
+						:show="show_loading"></u-loading-icon>
+					<view class="more" v-show="!show_loading" @click="loading_more">更多</view>
+				</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
@@ -72,6 +76,8 @@
 		},
 		data() {
 			return {
+				show_loading: false,
+				page_index: 1,
 				village_show: false,
 				village_value: '选择村',
 				village_columns: [
@@ -111,26 +117,33 @@
 			}
 		},
 		onLoad() {
-			this.GetNongJiJiaShiYuanPage(10, 1);
+			this.GetNongJiJiaShiYuanPage(this.page_index);
 		},
 		mounted() {
 
 		},
 		methods: {
 			// 获取农机驾驶员(分页获取)
-			GetNongJiJiaShiYuanPage(rows, page) {
+			GetNongJiJiaShiYuanPage(page, rows = 20) {
 				let self = this;
-				
+				self.show_loading = true;
+
 				user.nongJiJiaShiYuanPage({
 					'rows': rows,
 					'page': page,
 				}).then(res => {
 					console.log(res);
-					
+					self.show_loading = false;
 					if (res.data.code == 200) {
-						this.farmer_datas = res.data.data.rows;
+						self.farmer_datas = self.farmer_datas.concat(res.data.data.rows);
+						if (res.data.data.rows.length == rows) {
+							self.page_index++;
+						}
 					}
 				})
+			},
+			loading_more() {
+				this.GetNongJiJiaShiYuanPage(this.page_index);
 			},
 			// 获取农机准驾车型代号
 			// GetNJZJCXDH(f_id) {
@@ -303,15 +316,21 @@
 					height: 30rpx;
 				}
 			}
-			
-			.more {
-				width: 10vw;
-				height: 50rpx;
-				line-height: 50rpx;
-				font-size: 35rpx;
-				margin: 1vh 0 0 45vw;
-				text-align: center;
-				color: red;
+
+			.more_container {
+				width: 100vw;
+				height: 100rpx;
+				margin-top: 1vh;
+				display: flex;
+				justify-content: center;
+
+				.more {
+					height: 100rpx;
+					line-height: 100rpx;
+					font-size: 35rpx;
+					text-align: center;
+					color: red;
+				}
 			}
 		}
 	}

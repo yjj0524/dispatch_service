@@ -31,6 +31,9 @@
 		</u--form>
 		<u-button class="submit_btn" :ripple="true" @click="submit">登 录</u-button>
 		<u--text class="version" align="center" color="#999999" text="版本号: V.01.01"></u--text>
+		<view class="loading_container" v-show="show_loading">
+			<u-loading-icon class="loading_icon" text="登录中" timing-function="linear" mode="circle" :vertical="true" :show="show_loading"></u-loading-icon>
+		</view>
 		<u-toast ref="uToast"></u-toast>
 	</view>
 </template>
@@ -42,7 +45,7 @@
 			return {
 				form: {
 					account: '',
-					password: ''
+					password: '',
 				},
 				rules: {
 					account: [{
@@ -58,7 +61,8 @@
 						trigger: ['change', 'blur']
 					}]
 				},
-				isShowPassword: false // 是否显示密码
+				isShowPassword: false, // 是否显示密码
+				show_loading: false,
 			};
 		},
 		onLoad() {},
@@ -77,7 +81,7 @@
 			// 获取用户信息
 			GetUserInfo() {
 				let user_info = this.$utils.getStorage("user_info");
-				
+
 				if (user_info) {
 					this.form.account = user_info.user.f_Account;
 					this.form.password = user_info.user.f_password;
@@ -88,12 +92,16 @@
 				let self = this;
 				let username = self.form.account.trim();
 				let password = self.$md5(self.form.password.trim());
+				console.log(password);
+
+				self.show_loading = true;
 
 				user.login({
 					"account": username,
 					"password": password
 				}).then(res => {
 					// console.log(res);
+					self.show_loading = false;
 					if (res.data.code == 200) {
 						res.data.data.user.f_password = self.form.password;
 						self.$utils.setStorage("user_info", res.data.data);
@@ -138,6 +146,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		position: relative;
 
 		.logo_container {
 			width: 100vw;
@@ -212,5 +221,23 @@
 			margin-top: 3vh;
 			font-size: 30rpx !important;
 		}
+
+		.loading_container {
+			width: 100vw;
+			height: 100vh;
+			background: rgba(102, 102, 102, .2);
+			position: absolute;
+			top: 0;
+			left: 0;
+			.loading_icon {
+				position: absolute;
+				top: 50%;
+				left: 0;
+				right: 0;
+				border: 0;
+				margin: auto;
+			}
+		}
+		
 	}
 </style>

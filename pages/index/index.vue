@@ -122,7 +122,7 @@
 
 				.title {
 					width: 45vw;
-					font-size: 40rpx;
+					font-size: 50rpx;
 				}
 
 				.img_2 {

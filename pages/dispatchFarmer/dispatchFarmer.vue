@@ -38,7 +38,11 @@
 						<text class="result">{{ item.zb }}</text>
 					</view>
 				</view>
-				<view class="more" v-if="peasant_household_datas.length">更多</view>
+				<view class="more_container">
+					<u-loading-icon class="loading_icon" timing-function="linear" mode="circle" :vertical="true"
+						:show="show_loading"></u-loading-icon>
+					<view class="more" v-show="!show_loading" @click="loading_more">更多</view>
+				</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
@@ -65,6 +69,8 @@
 		},
 		data() {
 			return {
+				show_loading: false,
+				page_index: 1,
 				village_show: false,
 				village_value: '选择村',
 				village_columns: [
@@ -104,26 +110,33 @@
 			}
 		},
 		onLoad() {
-			this.GetJingYingZhuTiPage(10, 1);
+			this.GetJingYingZhuTiPage(this.page_index);
 		},
 		mounted() {
 
 		},
 		methods: {
 			// 获取经营主体(分页获取)
-			GetJingYingZhuTiPage(rows, page) {
+			GetJingYingZhuTiPage(page, rows = 20) {
 				let self = this;
+				self.show_loading = true;
 				
 				user.JingYingZhuTi({
 					'rows': rows,
 					'page': page,
 				}).then(res => {
-					console.log(res);
-					
+					// console.log(res);
+					self.show_loading = false;
 					if (res.data.code == 200) {
-						this.peasant_household_datas = res.data.data.rows;
+						self.peasant_household_datas = self.peasant_household_datas.concat(res.data.data.rows);
+						if (res.data.data.rows.length == rows) {
+							self.page_index++;
+						}
 					}
 				})
+			},
+			loading_more() {
+				this.GetJingYingZhuTiPage(this.page_index);
 			},
 			// 显示确认框
 			ShowConfirmationBox() {
@@ -269,14 +282,20 @@
 				}
 			}
 			
-			.more {
-				width: 10vw;
-				height: 50rpx;
-				line-height: 50rpx;
-				font-size: 35rpx;
-				margin: 1vh 0 0 45vw;
-				text-align: center;
-				color: red;
+			.more_container {
+				width: 100vw;
+				height: 100rpx;
+				margin-top: 1vh;
+				display: flex;
+				justify-content: center;
+			
+				.more {
+					height: 100rpx;
+					line-height: 100rpx;
+					font-size: 35rpx;
+					text-align: center;
+					color: red;
+				}
 			}
 		}
 	}

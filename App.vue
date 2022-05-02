@@ -109,5 +109,18 @@
 		/deep/ .u-index-list .u-transition.u-fade-enter-to.u-fade-enter-active {
 			display: none !important;
 		}
+		
+		// loading_icon
+		/deep/ .u-loading-icon.loading_icon.u-loading-icon--vertical .u-loading-icon__spinner.u-loading-icon__spinner--circle {
+			border-width: 5rpx;
+			width: 80rpx !important;
+			height: 80rpx !important;
+		}
+		
+		/deep/ .u-loading-icon.loading_icon.u-loading-icon--vertical .u-loading-icon__text {
+			height: 40rpx;
+			line-height: 40rpx;
+			font-size: 40rpx !important;
+		}
 	}
 </style>
