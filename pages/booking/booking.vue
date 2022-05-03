@@ -27,11 +27,11 @@
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.xingMing }}</text>
-						<button class="booking_btn" type="default" @click="JumpToBookingArrange">预约</button>
+						<button class="booking_btn" type="default" @click="JumpToBookingArrange(item)">预约</button>
 					</view>
 					<view class="item state">
 						<text class="title">状态 :</text>
-						<text class="result allow">可执行</text>
+						<text class="result allow">{{ item.mark }}</text>
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
@@ -39,7 +39,7 @@
 					</view>
 					<view class="item machine">
 						<text class="title">农机持有 :</text>
-						<text class="result">{{ item.zhunJiaJiXing }}</text>
+						<text class="result" v-for="(value, key) in item.nongJiJiQi" :key="key">{{ value.jiXieLeiXing }}/</text>
 					</view>
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
@@ -52,7 +52,7 @@
 				<view class="more_container">
 					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
 						v-show="show_loading" />
-					<view class="more" v-show="!show_loading" @click="loading_more">加载更多</view>
+					<view class="more" v-show="!show_loading" @click="LoadingMore">加载更多</view>
 				</view>
 			</scroll-view>
 		</view>
@@ -118,10 +118,9 @@
 			}
 		},
 		onLoad() {
-			this.GetNongJiJiaShiYuanPage(this.page_index);
 		},
 		mounted() {
-
+			this.GetNongJiJiaShiYuanPage(this.page_index);
 		},
 		methods: {
 			// 获取农机驾驶员(分页获取)
@@ -144,15 +143,9 @@
 				})
 			},
 			// 加载更多
-			loading_more() {
+			LoadingMore() {
 				this.GetNongJiJiaShiYuanPage(this.page_index);
 			},
-			// 获取农机准驾车型代号
-			// GetNJZJCXDH(f_id) {
-			// 	user.NJZJCXDH(f_id).then((res) => {
-			// 		console.log(res);
-			// 	})
-			// },
 			// 选择村
 			SelectVillage(e) {
 				// console.log(e);
@@ -168,9 +161,9 @@
 				this.farmer_show = false;
 			},
 			// 跳转到农机预约安排页
-			JumpToBookingArrange() {
+			JumpToBookingArrange(data) {
 				uni.navigateTo({
-					url: '../bookingArrange/bookingArrange'
+					url: '../bookingArrange/bookingArrange?data=' + JSON.stringify(data)
 				});
 			}
 		}

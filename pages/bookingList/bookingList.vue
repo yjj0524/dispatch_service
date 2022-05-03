@@ -18,11 +18,11 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) of 10" :key="index">
+				<view class="information_item" v-for="(item, index) in service_list" :key="index">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
-						<text class="title">李小四</text>
-						<button class="booking_btn" type="default" @click="JumpToDispatchService">调度</button>
+						<text class="title">{{ item.xingming }}</text>
+						<button class="booking_btn" type="default" @click="JumpToDispatchService(item)">调度</button>
 					</view>
 					<view class="item state">
 						<text class="title">状态 :</text>
@@ -30,23 +30,27 @@
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
-						<text class="result">村镇</text>
+						<text class="result">{{ item.zhuzhi }}</text>
 					</view>
 					<view class="item state">
 						<text class="title">派遣农户 :</text>
-						<text class="result">王老五 (100亩)</text>
+						<text class="result">{{ item.ztmc }}<span>({{ item.zmj }}亩)</span></text>
+					</view>
+					<view class="item state">
+						<text class="title">作业类型 :</text>
+						<text class="result">{{ item.type }}</span></text>
 					</view>
 					<view class="item date_time">
 						<text class="title">操作时间 :</text>
-						<text class="result">2022/05/08</text>
+						<text class="result">{{ item.stime }}</text>
 					</view>
 					<view class="item work_time">
 						<text class="title">预计工作时间 :</text>
-						<text class="result">3天</text>
+						<text class="result">{{ item.times }}天</text>
 					</view>
 					<view class="item machine">
 						<text class="title">操作农机 :</text>
-						<text class="result">周老七 (插秧机)</text>
+						<view class="result machine_type">{{ item.suoyouren }} <span>({{ item.jixieleixing }})</span></view>
 					</view>
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
@@ -56,24 +60,33 @@
 						</view>
 					</view>
 				</view>
+				<view class="more_container">
+					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
+						v-show="show_loading" />
+					<view class="more" v-show="!show_loading" @click="LoadingMore">加载更多</view>
+				</view>
 			</scroll-view>
 		</view>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
-			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage" :defaultIndex="village_default_index">
+			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage"
+			:defaultIndex="village_default_index">
 		</u-picker>
 	</view>
 </template>
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
-	
+	import user from '@/api/api.js'
+
 	export default {
 		components: {
 			Navbar,
 		},
 		data() {
 			return {
+				show_loading: false,
+				page_index: 1,
 				village_show: false,
 				village_value: '选择村',
 				village_columns: [
@@ -90,13 +103,57 @@
 						'村十',
 					],
 				],
-				village_default_index: [5],
+				village_default_index: [0],
+				// 预约服务列表
+				service_list: [],
 			}
 		},
 		mounted() {
-
+			this.GetServicePageList(this.page_index);
 		},
 		methods: {
+			// 获取预约列表(分页获取)
+			GetServicePageList(page, rows = 20) {
+				let self = this;
+				self.show_loading = true;
+
+				user.ServicePageList({
+					'rows': rows,
+					'page': page,
+				}).then(res => {
+					console.log(res);
+					self.show_loading = false;
+
+					if (res.data.code == 200) {
+						let datas = res.data.data.rows;
+
+						datas = datas.filter((item) => {
+							return item.f_id != 'string' && item.f_id != '123';
+						})
+						
+						for (let i = 0; i < datas.length; i++) {
+							let stime = datas[i].stime;
+							
+							if (stime) {
+								let index = stime.indexOf('T');
+								
+								stime = stime.slice(0, index);
+								
+								datas[i].stime = stime;
+							}
+						}
+
+						self.service_list = self.service_list.concat(datas);
+						if (res.data.data.rows.length == rows) {
+							self.page_index++;
+						}
+					}
+				})
+			},
+			// 加载更多
+			LoadingMore() {
+				this.GetServicePageList(this.page_index);
+			},
 			// 选择村
 			SelectVillage(e) {
 				// console.log(e);
@@ -104,9 +161,10 @@
 				this.village_default_index = e.indexs;
 				this.village_show = false;
 			},
-			JumpToDispatchService() {
+			// 跳转到调度服务页
+			JumpToDispatchService(data) {
 				uni.navigateTo({
-					url: '../dispatchService/dispatchService'
+					url: '../dispatchService/dispatchService?data=' + JSON.stringify(data)
 				});
 			}
 		}
@@ -178,12 +236,12 @@
 					width: 50vw;
 					display: flex;
 					align-items: center;
-				
+
 					.title {
 						width: 20vw;
 						margin-left: 5vw;
 					}
-				
+
 					.img {
 						width: 30rpx;
 						height: 20rpx;
@@ -237,35 +295,57 @@
 				padding: 0 3vw;
 				font-size: 35rpx;
 				border-bottom: 1rpx solid #e5e5e5;
-				
+
 				.result {
 					font-size: 30rpx;
 					color: #999999;
 				}
-				
+
 				.allow {
 					color: #05a310;
 				}
 			}
 			
+			.machine_type {
+				width: 62vw;
+				text-align: right;
+			}
+
 			.healthy_prove {
 				height: 120rpx;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
 				padding: 0 3vw;
+
 				.title {
 					font-size: 35rpx;
 				}
-				
+
 				.photo_container {
 					width: 65vw;
-					
+
 					.photo {
 						width: 15vw;
 						height: 10vw;
 						margin-left: 1vw;
 					}
+				}
+			}
+
+			.more_container {
+				width: 100vw;
+				height: 100rpx;
+				margin-top: 1vh;
+				display: flex;
+				justify-content: center;
+
+				.more {
+					height: 100rpx;
+					line-height: 100rpx;
+					font-size: 35rpx;
+					text-align: center;
+					color: red;
 				}
 			}
 		}

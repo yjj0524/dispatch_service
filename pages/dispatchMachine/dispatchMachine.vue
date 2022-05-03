@@ -23,11 +23,11 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) of 10" :key="index">
+				<view class="information_item" v-for="(item, index) in machine_datas" :key="index">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
-						<text class="title">周老六</text>
-						<button class="dispatch_btn" type="default" @click="show_confirmation_box = true">派遣</button>
+						<text class="title">{{ item.suoYouRen }}</text>
+						<button class="dispatch_btn" type="default" @click="ShowConfirmationBox(item)">派遣</button>
 					</view>
 					<view class="item state">
 						<text class="title">状态 :</text>
@@ -35,25 +35,22 @@
 					</view>
 					<view class="item villages_town">
 						<text class="title">村镇 :</text>
-						<text class="result">村镇</text>
+						<text class="result">{{ item.lianXiDiZhi }}</text>
 					</view>
 					<view class="machine">
 						<text class="title">农机持有 :</text>
 						<view class="machine_container">
 							<view class="machine_item">
+								<text class="machine_title">{{ item.jiXieLeiXing }}</text>
 								<view class="have"></view>
-								<text class="machine_title">插秧机</text>
-							</view>
-							<view class="machine_item">
-								<view class="no_have"></view>
-								<text class="machine_title">插秧机</text>
-							</view>
-							<view class="machine_item">
-								<view class="no_have"></view>
-								<text class="machine_title">插秧机</text>
 							</view>
 						</view>
 					</view>
+				</view>
+				<view class="more_container">
+					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
+						v-show="show_loading" />
+					<view class="more" v-show="!show_loading" @click="loading_more">加载更多</view>
 				</view>
 			</scroll-view>
 		</view>
@@ -76,6 +73,7 @@
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
+	import user from '@/api/api.js';
 
 	export default {
 		components: {
@@ -83,6 +81,8 @@
 		},
 		data() {
 			return {
+				show_loading: false,
+				page_index: 1,
 				village_show: false,
 				village_value: '选择村',
 				village_columns: [
@@ -111,12 +111,37 @@
 				],
 				machine_default_index: [0],
 				show_confirmation_box: false,
+				// 农机机器数据
+				machine_datas: [],
+				machine_object_data: null,
 			}
 		},
 		mounted() {
-
+			this.GetNongJiJiQi(this.page_index);
 		},
 		methods: {
+			// 获取农机机器(分页获取)
+			GetNongJiJiQi(page, rows = 20) {
+				let self = this;
+				self.show_loading = true;
+
+				user.NongJiJiQi({
+					'rows': rows,
+					'page': page,
+				}).then(res => {
+					console.log(res);
+					self.show_loading = false;
+					if (res.data.code == 200) {
+						self.machine_datas = self.machine_datas.concat(res.data.data.rows);
+						if (res.data.data.rows.length == rows) {
+							self.page_index++;
+						}
+					}
+				})
+			},
+			loading_more() {
+				this.GetNongJiJiQi(this.page_index);
+			},
 			// 选择村
 			SelectVillage(e) {
 				// console.log(e);
@@ -132,14 +157,16 @@
 				this.machine_show = false;
 			},
 			// 显示确认框
-			ShowConfirmationBox() {
+			ShowConfirmationBox(data) {
 				this.show_confirmation_box = true;
+				this.machine_object_data = data;
 			},
 			// 返回上一页
 			BackToBookingArrange() {
-				this.show_confirmation_box = false;
+				let self = this;
+				self.show_confirmation_box = false;
 				uni.$emit('machine', {
-					machine_data: '周老七 (插秧机)'
+					machine_data: self.machine_object_data
 				});
 				uni.navigateBack();
 			}
@@ -282,7 +309,6 @@
 				}
 			}
 
-
 			.machine {
 				min-height: 100rpx;
 				display: flex;
@@ -304,6 +330,10 @@
 						height: 70rpx;
 						display: flex;
 						align-items: center;
+						
+						.machine_title {
+							margin-right: 2vw;
+						}
 
 						.have {
 							width: 20rpx;
@@ -311,7 +341,6 @@
 							background: #00ffa2;
 							border-radius: 50%;
 							border: 5rpx solid #e5e5e5;
-							margin-right: 30rpx;
 						}
 
 						.no_have {
@@ -320,12 +349,26 @@
 							background: white;
 							border-radius: 50%;
 							border: 5rpx solid #e5e5e5;
-							margin-right: 30rpx;
 						}
 					}
 				}
 			}
 
+			.more_container {
+				width: 100vw;
+				height: 100rpx;
+				margin-top: 1vh;
+				display: flex;
+				justify-content: center;
+
+				.more {
+					height: 100rpx;
+					line-height: 100rpx;
+					font-size: 35rpx;
+					text-align: center;
+					color: red;
+				}
+			}
 		}
 	}
 </style>

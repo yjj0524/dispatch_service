@@ -92,7 +92,6 @@
 				let self = this;
 				let username = self.form.account.trim();
 				let password = self.$md5(self.form.password.trim());
-				console.log(password);
 
 				self.show_loading = true;
 
@@ -229,6 +228,7 @@
 			position: absolute;
 			top: 0;
 			left: 0;
+
 			.loading_icon {
 				position: absolute;
 				top: 50%;
@@ -238,6 +238,6 @@
 				margin: auto;
 			}
 		}
-		
+
 	}
 </style>

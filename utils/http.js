@@ -1,7 +1,7 @@
 const baseUrl = 'http://www.shsninfo.com:1238';
 const request = (opts) => {
 	// #ifdef H5
-	const url = baseUrl + opts.url;
+	const url = process.env.NODE_ENV === 'development' ? `/api${opts.url}` : baseUrl + opts.url;
 	// #endif
 	// #ifdef APP-PLUS || MP
 	url = baseUrl + opts.url;

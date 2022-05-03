@@ -27,7 +27,7 @@
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.ztmc }}</text>
-						<button class="dispatch_btn" type="default" @click="show_confirmation_box = true">派遣</button>
+						<button class="dispatch_btn" type="default" @click="ShowConfirmationBox(item)">派遣</button>
 					</view>
 					<view class="item state">
 						<text class="title">耕作面积 :</text>
@@ -107,7 +107,9 @@
 				],
 				area_default_index: [0],
 				show_confirmation_box: false,
+				// 农户数据
 				peasant_household_datas: [],
+				dispatch_Object_data: null,
 			}
 		},
 		onLoad() {
@@ -154,14 +156,16 @@
 				this.area_show = false;
 			},
 			// 显示确认框
-			ShowConfirmationBox() {
+			ShowConfirmationBox(data) {
 				this.show_confirmation_box = true;
+				this.dispatch_Object_data = data;
 			},
 			// 返回上一页
 			BackToBookingArrange() {
-				this.show_confirmation_box = false;
+				let self = this;
+				self.show_confirmation_box = false;
 				uni.$emit('farmer', {
-					farmer_data: '王老五 (100亩)'
+					farmer_data: self.dispatch_Object_data
 				});
 				uni.navigateBack();
 			}
