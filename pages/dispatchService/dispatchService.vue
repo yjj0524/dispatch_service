@@ -135,6 +135,7 @@
 				this.villages_town = service_data.zhuzhi;
 				this.farmer = `${service_data.ztmc} (${service_data.zmj}亩)`;
 				this.task_type_value = service_data.type;
+				this.task_type_default_index[0] = this.task_type_columns[0].indexOf(service_data.type);
 				this.select_datetime = service_data.stime;
 				this.current_date = service_data.stime;
 				this.work_time = service_data.times;
@@ -147,18 +148,20 @@
 			uni.$once('farmer', (query) => {
 				self.farmer_data = query;
 				self.farmer = `${query.farmer_data.ztmc} (${query.farmer_data.zmj}亩)`;
-				self.service_data.company_Id = query.farmer_data.f_Id;
+				self.service_data.company_id = query.farmer_data.f_Id;
+				self.service_data.zmj = query.farmer_data.zmj;
 				this.GetWorkTime();
 			});
 			uni.$once('machine', (query) => {
 				self.machine_data = query;
 				self.machine = `${query.machine_data.suoYouRen} (${query.machine_data.jiXieLeiXing})`;
 				self.service_data.machine_id = query.machine_data.f_Id;
+				self.service_data.jiXieLeiXing = query.machine_data.jiXieLeiXing;
 				this.GetWorkTime();
 			});
 		},
 		mounted() {
-
+			
 		},
 		methods: {
 			// 返回预约页面
@@ -204,67 +207,52 @@
 			ShowConfirmationBox() {
 				let self = this;
 
-				if (!self.farmer_data) {
-					self.$refs.uToast.show({
-						type: 'error',
-						position: 'bottom',
-						duration: 1500,
-						message: '请选择派遣农户',
-						iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/error.png',
-					})
-					return;
-				}
-
-				if (!self.machine_data) {
-					self.$refs.uToast.show({
-						type: 'error',
-						position: 'bottom',
-						duration: 1500,
-						message: '请选择操作农机',
-						iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/error.png',
-					})
-					return;
-				}
-
 				self.show_confirmation_box = true;
 			},
 			// 获取工作时间
 			GetWorkTime() {
 				let self = this;
 
-				if (self.farmer_data && self.task_type_value && self.machine_data) {
-					self.work_time = '计算中...';
-					user.WorkTime({
-						'JXLX': self.machine_data.machine_data.jiXieLeiXing,
-						'ZYLX': self.task_type_value,
-						'mj': self.farmer_data.farmer_data.zmj,
-					}).then(res => {
-						// console.log(res);
-						if (res.data.code == 200) {
-							self.work_time = res.data.data;
-						} else {
-							self.work_time = 1;
-						}
-					})
-				}
+				self.work_time = '计算中...';
+				user.WorkTime({
+					'JXLX': self.service_data.jiXieLeiXing,
+					'ZYLX': self.task_type_value,
+					'mj': self.service_data.zmj,
+				}).then(res => {
+					// console.log(res);
+					if (res.data.code == 200) {
+						self.work_time = res.data.data;
+					} else {
+						self.work_time = 1;
+					}
+				})
 			},
 			// 提交预约
 			SubmitBooking() {
 				let self = this;
 				self.show_confirmation_box = false;
 				self.show_loading = true;
-				console.log(self.service_data.f_id);
-				console.log(self.farmer_data.farmer_data.f_Id);
-				console.log(self.task_type_value);
-				console.log(self.machine_data.machine_data.f_Id);
-				console.log(self.select_datetime);
+				// console.log(self.service_data);
+				// console.log(self.service_data.f_id);
+				// console.log(self.service_data.code);
+				// console.log(self.service_data.driver_id); // 驾驶员id
+				// console.log(self.service_data.company_id); // 农户id
+				// console.log(self.task_type_value); // 作业类型
+				// console.log(self.service_data.machine_id); // 农机id
+				// console.log(self.select_datetime); // 操作时间
+				// console.log(self.service_data.etime); // 结束时间
+				// console.log(self.work_time); // 工作时间
 
 				user.DspatchService(self.service_data.f_id, {
-					'f_Id': self.service_data.f_Id, // 驾驶员id
-					'company_Id': self.farmer_data.farmer_data.f_Id, // 农户id
+					'f_Id': self.service_data.f_Id,
+					'code': self.service_data.code,
+					'driver_id': self.service_data.driver_id, // 驾驶员id
+					'company_Id': self.service_data.company_id, // 农户id
 					'type': self.task_type_value, // 作业类型
-					'machine_Id': self.machine_data.machine_data.f_Id, // 农机id
-					'stime': self.select_datetime, // 操作时间
+					'machine_Id': self.service_data.machine_id, // 农机id
+					'sTime': self.select_datetime, // 操作时间
+					'eTime': self.service_data.etime, // 结束时间
+					'times': self.work_time, // 工作时间
 				}).then(res => {
 					console.log(res);
 					self.show_loading = false;

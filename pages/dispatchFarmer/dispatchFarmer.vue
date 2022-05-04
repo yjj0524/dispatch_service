@@ -5,9 +5,9 @@
 			<view class="search_item">
 				<view class="search">
 					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
-					<input class="search_input" type="text" value="" placeholder="输入姓名" />
+					<input class="search_input" type="text" v-model="search_message" placeholder="输入姓名" />
 				</view>
-				<button class="search_btn" type="default">搜索</button>
+				<button class="search_btn" type="default" @click="FilterName">搜索</button>
 			</view>
 			<view class="select_item">
 				<view class="item" @click="village_show = true">
@@ -23,7 +23,7 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) in peasant_household_datas" :key="index">
+				<view class="information_item" v-for="(item, index) in peasant_household_datas" :key="index" v-show="item.is_show">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.ztmc }}</text>
@@ -70,6 +70,7 @@
 		},
 		data() {
 			return {
+				search_message: '',
 				show_loading: false,
 				page_index: 1,
 				village_show: false,
@@ -131,15 +132,50 @@
 					console.log(res);
 					self.show_loading = false;
 					if (res.data.code == 200) {
-						self.peasant_household_datas = self.peasant_household_datas.concat(res.data.data.rows);
-						if (res.data.data.rows.length == rows) {
+						let data = res.data.data.rows;
+						data.map(item => {
+							item.is_show = true
+						});
+						self.peasant_household_datas = self.peasant_household_datas.concat(data);
+						self.peasant_household_datas = self.RemoveDuplicateObj(self.peasant_household_datas);
+						if (data.length == rows) {
 							self.page_index++;
 						}
 					}
 				})
 			},
+			// 加载更多
 			loading_more() {
-				this.GetJingYingZhuTiPage(this.page_index);
+				let self = this;
+				self.search_message = '';
+				self.peasant_household_datas.map(item => {
+					item.is_show = true;
+				})
+				self.GetJingYingZhuTiPage(self.page_index);
+			},
+			// 过滤名称
+			FilterName() {
+				let self = this;
+				let name = self.search_message;
+				
+				self.peasant_household_datas.map(item => {
+					let index = item.ztmc.indexOf(name);
+					if (index == -1) {
+						item.is_show = false;
+					}
+					else {
+						item.is_show = true;
+					}
+				})
+			},
+			// 数组对象去重
+			RemoveDuplicateObj(arr) {
+				let obj = {};
+				arr = arr.reduce((newArr, next) => {
+					obj[next.f_Id] ? "" : (obj[next.f_Id] = true && newArr.push(next));
+					return newArr;
+				}, []);
+				return arr;
 			},
 			// 选择村
 			SelectVillage(e) {

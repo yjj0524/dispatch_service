@@ -42,10 +42,10 @@
 			let self = this;
 			uni.getSystemInfo({
 				success(res) {
-					// console.log(res.screenHeight); //屏幕高度  注意这里获得的高度宽度都是px 需要转换rpx
-					// console.log(res.windowWidth); //可使用窗口宽度
-					// console.log(res.windowHeight); //可使用窗口高度
-					// console.log(res.screenWidth); //屏幕宽度
+					console.log(res.screenHeight); //屏幕高度  注意这里获得的高度宽度都是px 需要转换rpx
+					console.log(res.windowWidth); //可使用窗口宽度
+					console.log(res.windowHeight); //可使用窗口高度
+					console.log(res.screenWidth); //屏幕宽度
 					self.cWidth = res.windowWidth / 1.03;
 					self.cHeight = res.windowHeight / 1.2;
 				}

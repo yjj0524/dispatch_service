@@ -88,12 +88,12 @@
     },
     "vueVersion" : "2",
     "h5" : {
-        // "domain" : "192.168.0.105",
-        // "router" : {
-        //     "mode" : "hash",
-        //     "base" : "./"
-        // },
-        // "publicPath" : "./",
+        "domain" : "192.168.0.105",
+        "router" : {
+            "mode" : "hash",
+            "base" : "./"
+        },
+        "publicPath" : "./",
         "devServer" : {
             "port" : 8080, //应用程序端口
             "disableHostCheck" : true,
@@ -107,6 +107,7 @@
                     }
                 }
             }
-        }
+        },
+        "title" : "农机预约调度服务"
     }
 }

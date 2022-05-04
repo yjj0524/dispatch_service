@@ -5,9 +5,9 @@
 			<view class="search_item">
 				<view class="search">
 					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
-					<input class="search_input" type="text" value="" placeholder="输入姓名" />
+					<input class="search_input" type="text" v-model="search_message" placeholder="输入姓名" />
 				</view>
-				<button class="search_btn" type="default">搜索</button>
+				<button class="search_btn" type="default" @click="FilterName">搜索</button>
 			</view>
 			<view class="select_item">
 				<view class="item" @click="village_show = true">
@@ -18,7 +18,7 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) in service_list" :key="index">
+				<view class="information_item" v-for="(item, index) in service_list" :key="index" v-show="item.is_show">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.xingming }}</text>
@@ -50,7 +50,8 @@
 					</view>
 					<view class="item machine">
 						<text class="title">操作农机 :</text>
-						<view class="result machine_type">{{ item.suoyouren }} <span>({{ item.jixieleixing }})</span></view>
+						<view class="result machine_type">{{ item.suoyouren }} <span>({{ item.jixieleixing }})</span>
+						</view>
 					</view>
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
@@ -85,6 +86,7 @@
 		},
 		data() {
 			return {
+				search_message: '',
 				show_loading: false,
 				page_index: 1,
 				village_show: false,
@@ -125,26 +127,24 @@
 					self.show_loading = false;
 
 					if (res.data.code == 200) {
-						let datas = res.data.data.rows;
+						let data = res.data.data.rows;
 
-						datas = datas.filter((item) => {
-							return item.f_id != 'string' && item.f_id != '123';
-						})
-						
-						for (let i = 0; i < datas.length; i++) {
-							let stime = datas[i].stime;
-							
-							if (stime) {
-								let index = stime.indexOf('T');
-								
-								stime = stime.slice(0, index);
-								
-								datas[i].stime = stime;
+						for (let i = 0; i < data.length; i++) {
+							let item = data[i];
+							item.is_show = true;
+
+							if (item.stime) {
+								let index = item.stime.indexOf('T');
+
+								item.stime = item.stime.slice(0, index);
+
+								data[i].stime = item.stime;
 							}
 						}
 
-						self.service_list = self.service_list.concat(datas);
-						if (res.data.data.rows.length == rows) {
+						self.service_list = self.service_list.concat(data);
+						self.service_list = self.RemoveDuplicateObj(self.service_list);
+						if (data.length == rows) {
 							self.page_index++;
 						}
 					}
@@ -152,7 +152,35 @@
 			},
 			// 加载更多
 			LoadingMore() {
+				let self = this;
+				self.search_message = '';
+				self.service_list.map(item => {
+					item.is_show = true;
+				})
 				this.GetServicePageList(this.page_index);
+			},
+			// 过滤名称
+			FilterName() {
+				let self = this;
+				let name = self.search_message;
+
+				self.service_list.map(item => {
+					let index = item.xingming.indexOf(name);
+					if (index == -1) {
+						item.is_show = false;
+					} else {
+						item.is_show = true;
+					}
+				})
+			},
+			// 数组对象去重
+			RemoveDuplicateObj(arr) {
+				let obj = {};
+				arr = arr.reduce((newArr, next) => {
+					obj[next.f_id] ? "" : (obj[next.f_id] = true && newArr.push(next));
+					return newArr;
+				}, []);
+				return arr;
 			},
 			// 选择村
 			SelectVillage(e) {
@@ -305,7 +333,7 @@
 					color: #05a310;
 				}
 			}
-			
+
 			.machine_type {
 				width: 62vw;
 				text-align: right;
