@@ -38,7 +38,7 @@
 	</view>
 </template>
 <script>
-	import user from '@/api/api.js'
+	import user from '@/api/api.js';
 
 	export default {
 		data() {
@@ -95,10 +95,11 @@
 
 				self.show_loading = true;
 
-				user.login({
+				user.Login({
 					"account": username,
 					"password": password
 				}).then(res => {
+					console.log(`登录：`);
 					console.log(res);
 					self.show_loading = false;
 					if (res.data.code == 200) {

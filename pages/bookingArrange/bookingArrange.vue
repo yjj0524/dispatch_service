@@ -26,7 +26,7 @@
 				<text class="result">{{ work_time }}天</text>
 			</view>
 			<view class="item machine" @click="JumpToDispatchMachine">
-				<text class="title">操作农机 :</text>
+				<text class="title">作业农机 :</text>
 				<text class="result">{{ machine }}</text>
 				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>

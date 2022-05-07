@@ -10,6 +10,12 @@
 				<button class="search_btn" type="default">搜索</button>
 			</view>
 			<view class="select_item">
+				<!-- 镇 -->
+				<view class="item" @click="town_show = true">
+					<text class="title">{{ town_value }}</text>
+					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
+				</view>
+				<!-- 村 -->
 				<view class="item" @click="village_show = true">
 					<text class="title">{{ village_value }}</text>
 					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
@@ -17,8 +23,8 @@
 			</view>
 		</view>
 		<view class="information_container">
-			<scroll-view scroll-y="true" style="height: 80vh;">
-				<u-index-list :index-list="indexList" :sticky="false" customNavHeight="100">
+			<scroll-view scroll-y="true" style="height: 78vh;">
+				<u-index-list :index-list="indexList" :sticky="false" customNavHeight="120">
 					<template v-for="(item, index) in itemArr">
 						<u-index-item>
 							<!-- #ifndef APP-NVUE -->
@@ -28,7 +34,7 @@
 								<image class="portrait_img" src="@/static/images/booking/portrait.png" mode=""></image>
 								<view class="message">
 									<text class="title">{{ cell }}</text>
-									<text class="villages_town">村镇</text>
+									<text class="villages_town">镇村</text>
 								</view>
 								<u-button class="report_btn" :ripple="true">申报</u-button>
 							</view>
@@ -37,15 +43,20 @@
 				</u-index-list>
 			</scroll-view>
 		</view>
+		<!-- 镇选项 -->
+		<u-picker :show="town_show" :columns="town_columns" :closeOnClickOverlay="true" @close="town_show = false"
+			@cancel="town_show = false" @confirm="SelectTown" :defaultIndex="town_default_index">
+		</u-picker>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
-			@close="village_show = false" @cancel="village_show = false" :defaultIndex="village_default_index">
+			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage" :defaultIndex="village_default_index">
 		</u-picker>
 	</view>
 </template>
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
+	import user from '@/api/api.js';
 
 	export default {
 		components: {
@@ -53,7 +64,9 @@
 		},
 		data() {
 			return {
-				indexList: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"],
+				indexList: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+					"T", "U", "V", "W", "X", "Y", "Z"
+				],
 				itemArr: [
 					['人员A1', '人员A2', '人员A3'],
 					['人员B1', '人员B2', '人员B3'],
@@ -82,29 +95,69 @@
 					['人员Y1', '人员Y2', '人员Y3'],
 					['人员Z1', '人员Z2', '人员Z3'],
 				],
-				village_show: false,
-				village_value: '选择村',
-				village_columns: [
-					[
-						'村一',
-						'村二',
-						'村三',
-						'村四',
-						'村五',
-						'村六',
-						'村七',
-						'村八',
-						'村九',
-						'村十',
-					],
+				town_complete_data: [],
+				town_show: false,
+				town_value: '所在镇',
+				town_columns: [
+					[],
 				],
+				town_default_index: [0],
+				village_show: false,
+				village_value: '所在村',
+				village_columns: [],
 				village_default_index: [5],
 			}
 		},
 		mounted() {
+			const town_data = uni.getStorageSync('town_data');
+			this.town_complete_data = town_data;
 
+			for (let i = 0; i < town_data.length; i++) {
+				this.town_columns[0].push(town_data[i].f_AreaName);
+			}
 		},
-		methods: {}
+		methods: {
+			// 获取村
+			GetVillage(pid) {
+				let self = this;
+
+				user.TownVillage(pid).then(res => {
+					console.log('村：');
+					console.log(res);
+					if (res.data.code == 200) {
+						let data = res.data.data;
+						let temp = [];
+						for (let i = 0; i < data.length; i++) {
+							temp.push(data[i].f_AreaName);
+						}
+
+						self.village_columns.push(temp);
+					}
+				})
+			},
+			// 选择镇
+			SelectTown(e) {
+				// console.log(e);
+				if (this.town_columns[0].length) {
+					this.town_value = e.value[0];
+					this.town_default_index = e.indexs;
+					this.village_columns.splice(0);
+					this.village_value = '所在村';
+					this.village_default_index = [0];
+					this.GetVillage(this.town_complete_data[e.indexs[0]].f_AreaCode);
+				}
+				this.town_show = false;
+			},
+			// 选择村
+			SelectVillage(e) {
+				// console.log(e);
+				if (this.village_columns.length) {
+					this.village_value = e.value[0];
+					this.village_default_index = e.indexs;
+				}
+				this.village_show = false;
+			},
+		}
 	}
 </script>
 
@@ -118,7 +171,7 @@
 
 		.search_container {
 			width: 100vw;
-			height: 10vh;
+			height: 12vh;
 			display: flex;
 			flex-direction: column;
 			background: white;
@@ -165,15 +218,22 @@
 
 			.select_item {
 				width: 100vw;
-				height: 5.5vh;
+				height: 7.5vh;
 				display: flex;
 				align-items: center;
 
 				.item {
-					margin: 0 20vw 0 5vw;
+					width: 50vw;
+					display: flex;
+					align-items: center;
 
 					.title {
-						margin-right: 3vw;
+						width: 20vw;
+						height: 40rpx;
+						line-height: 40rpx;
+						font-size: 30rpx;
+						overflow: hidden;
+						margin-left: 5vw;
 					}
 
 					.img {
@@ -186,7 +246,7 @@
 
 		.information_container {
 			width: 100vw;
-			height: 80vh;
+			height: 76vh;
 
 			.list_cell {
 				display: flex;
@@ -217,13 +277,13 @@
 					.title {
 						font-size: 40rpx;
 					}
-					
+
 					.villages_town {
 						color: #aeaeae;
 						font-size: 30rpx;
 					}
 				}
-				
+
 				.report_btn {
 					width: 25vw;
 					height: 4.5vh;

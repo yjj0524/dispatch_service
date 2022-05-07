@@ -1,29 +1,35 @@
 <template>
 	<view class="booking_container">
-		<Navbar title="农民信息" background="#FFFFFF" icon_color="black" title_color="black" />
+		<Navbar title="驾驶员信息" background="#FFFFFF" icon_color="black" title_color="black" />
 		<view class="search_container">
 			<view class="search_item">
 				<view class="search">
 					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
 					<input class="search_input" type="text" v-model="search_message" placeholder="输入姓名" />
 				</view>
-				<button class="search_btn" type="default" @click="FilterName">搜索</button>
+				<button class="search_btn" type="default" @click="FilterField">搜索</button>
 			</view>
 			<view class="select_item">
+				<!-- 选择镇 -->
+				<view class="item" @click="town_show = true">
+					<view class="title">{{ town_value }}</view>
+					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
+				</view>
+				<!-- 选择村 -->
 				<view class="item" @click="village_show = true">
 					<view class="title">{{ village_value }}</view>
 					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
-
-				<view class="item" @click="farmer_show = true">
-					<view class="title">{{ farmer_value }}</view>
+				<!-- 驾驶员状态 -->
+				<view class="item" @click="driver_show = true">
+					<view class="title">{{ driver_value }}</view>
 					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
 			</view>
 		</view>
 		<view class="information_container">
-			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) in farmer_datas" :key="index" v-show="item.is_show">
+			<scroll-view scroll-y="true" style="height: 78vh;">
+				<view class="information_item" v-for="(item, index) in driver_datas" :key="index" v-show="item.is_show">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.xingMing }}</text>
@@ -34,8 +40,12 @@
 						<text class="result allow">{{ item.mark }}</text>
 					</view>
 					<view class="item villages_town">
-						<text class="title">村镇 :</text>
+						<text class="title">地址 :</text>
 						<text class="result">{{ item.zhuZhi }}</text>
+					</view>
+					<view class="item villages_town">
+						<text class="title">准驾机型 :</text>
+						<text class="result">{{ item.zhunJiaJiXing }}</text>
 					</view>
 					<view class="item machine">
 						<text class="title">农机持有 :</text>
@@ -58,20 +68,24 @@
 				</view>
 			</scroll-view>
 		</view>
+		<!-- 镇选项 -->
+		<u-picker :show="town_show" :columns="town_columns" :closeOnClickOverlay="true" @close="town_show = false"
+			@cancel="town_show = false" @confirm="SelectTown" :defaultIndex="town_default_index">
+		</u-picker>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
 			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage"
 			:defaultIndex="village_default_index">
 		</u-picker>
-		<!-- 农民选项 -->
-		<u-picker :show="farmer_show" :columns="farmer_columns" :closeOnClickOverlay="true" @close="farmer_show = false"
-			@cancel="farmer_show = false" @confirm="SelectFarmer" :defaultIndex="farmer_default_index"></u-picker>
+		<!-- 驾驶员状态 -->
+		<u-picker :show="driver_show" :columns="driver_columns" :closeOnClickOverlay="true" @close="driver_show = false"
+			@cancel="driver_show = false" @confirm="SelectFarmer" :defaultIndex="driver_default_index"></u-picker>
 	</view>
 </template>
 
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
-	import user from '@/api/api.js'
+	import user from '@/api/api.js';
 
 	export default {
 		components: {
@@ -82,47 +96,39 @@
 				search_message: '',
 				show_loading: false,
 				page_index: 1,
+				town_complete_data: [],
+				town_show: false,
+				town_value: '所在镇',
+				town_columns: [
+					[],
+				],
+				town_default_index: [0],
 				village_show: false,
-				village_value: '选择村',
-				village_columns: [
-					[
-						'村一',
-						'村二',
-						'村三',
-						'村四',
-						'村五',
-						'村六',
-						'村七',
-						'村八',
-						'村九',
-						'村十',
-					],
-				],
+				village_value: '所在村',
+				village_columns: [],
 				village_default_index: [0],
-				farmer_show: false,
-				farmer_value: '农民状态',
-				farmer_columns: [
+				driver_show: false,
+				driver_value: '状态',
+				driver_columns: [
 					[
-						'状态一',
-						'状态二',
-						'状态三',
-						'状态四',
-						'状态五',
-						'状态六',
-						'状态七',
-						'状态八',
-						'状态九',
-						'状态十',
+						'可出勤',
+						'不可出勤',
 					],
 				],
-				farmer_default_index: [0],
+				driver_default_index: [0],
 				// 农机驾驶员数据
-				farmer_datas: [],
+				driver_datas: [],
 			}
 		},
 		onLoad() {},
 		mounted() {
 			this.GetNongJiJiaShiYuanPage(this.page_index);
+			const town_data = uni.getStorageSync('town_data');
+			this.town_complete_data = town_data;
+
+			for (let i = 0; i < town_data.length; i++) {
+				this.town_columns[0].push(town_data[i].f_AreaName);
+			}
 		},
 		methods: {
 			// 获取农机驾驶员(分页获取)
@@ -130,10 +136,11 @@
 				let self = this;
 				self.show_loading = true;
 
-				user.nongJiJiaShiYuanPage({
+				user.NongJiJiaShiYuanPage({
 					'rows': rows,
 					'page': page,
 				}).then(res => {
+					console.log('驾驶员：');
 					console.log(res);
 					self.show_loading = false;
 					if (res.data.code == 200) {
@@ -141,8 +148,8 @@
 						data.map(item => {
 							item.is_show = true
 						});
-						self.farmer_datas = self.farmer_datas.concat(data);
-						self.farmer_datas = self.RemoveDuplicateObj(self.farmer_datas);
+						self.driver_datas = self.driver_datas.concat(data);
+						self.driver_datas = self.RemoveDuplicateObj(self.driver_datas);
 						if (data.length == rows) {
 							self.page_index++;
 						}
@@ -153,23 +160,88 @@
 			LoadingMore() {
 				let self = this;
 				self.search_message = '';
-				self.farmer_datas.map(item => {
+				self.town_value = '所在镇';
+				self.town_default_index = [0];
+				self.village_value = '所在村';
+				self.village_default_index = [0];
+				self.village_columns.splice(0);
+				self.driver_value = '状态';
+				self.driver_default_index = [0];
+				
+				self.driver_datas.map(item => {
 					item.is_show = true;
 				})
 				self.GetNongJiJiaShiYuanPage(self.page_index);
 			},
-			// 过滤名称
-			FilterName() {
+			// 获取村
+			GetVillage(pid) {
+				let self = this;
+
+				user.TownVillage(pid).then(res => {
+					console.log('村：');
+					console.log(res);
+					if (res.data.code == 200) {
+						let data = res.data.data;
+						let temp = [];
+						for (let i = 0; i < data.length; i++) {
+							temp.push(data[i].f_AreaName);
+						}
+
+						self.village_columns.push(temp);
+					}
+				})
+			},
+			// 过滤
+			FilterField() {
 				let self = this;
 				let name = self.search_message;
 				
-				self.farmer_datas.map(item => {
+				self.driver_datas.map(item => {
+					item.is_show = true;
+				})
+
+				// 过滤姓名
+				self.driver_datas.map(item => {
 					let index = item.xingMing.indexOf(name);
 					if (index == -1) {
 						item.is_show = false;
-					}
-					else {
+					} else {
 						item.is_show = true;
+					}
+				})
+				
+				// 过滤镇
+				self.driver_datas.map(item => {
+					if (item.is_show && self.town_value != '所在镇') {
+						let index = item.zhuZhi.indexOf(self.town_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
+					}
+				})
+				
+				// 过滤村
+				self.driver_datas.map(item => {
+					if (item.is_show && self.village_value != '所在村') {
+						let index = item.zhuZhi.indexOf(self.village_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
+					}
+				})
+				
+				// 过滤状态
+				self.driver_datas.map(item => {
+					if (item.is_show && self.driver_value != '状态') {
+						if (item.mark == self.driver_value) {
+							item.is_show = true;
+						} else {
+							item.is_show = false;
+						}
 					}
 				})
 			},
@@ -182,19 +254,37 @@
 				}, []);
 				return arr;
 			},
+			// 选择镇
+			SelectTown(e) {
+				// console.log(e);
+				if (this.town_columns[0].length) {
+					this.town_value = e.value[0];
+					this.town_default_index = e.indexs;
+					this.village_columns.splice(0);
+					this.village_value = '所在村';
+					this.village_default_index = [0];
+					this.FilterField();
+					this.GetVillage(this.town_complete_data[e.indexs[0]].f_AreaCode);
+				}
+				this.town_show = false;
+			},
 			// 选择村
 			SelectVillage(e) {
 				// console.log(e);
-				this.village_value = e.value[0];
-				this.village_default_index = e.indexs;
+				if (this.village_columns.length) {
+					this.village_value = e.value[0];
+					this.village_default_index = e.indexs;
+					this.FilterField();
+				}
 				this.village_show = false;
 			},
-			// 选择农民状态
+			// 选择驾驶员状态
 			SelectFarmer(e) {
 				// console.log(e);
-				this.farmer_value = e.value[0];
-				this.farmer_default_index = e.indexs;
-				this.farmer_show = false;
+				this.driver_value = e.value[0];
+				this.driver_default_index = e.indexs;
+				this.driver_show = false;
+				this.FilterField();
 			},
 			// 跳转到农机预约安排页
 			JumpToBookingArrange(data) {
@@ -216,7 +306,7 @@
 
 		.search_container {
 			width: 100vw;
-			height: 10vh;
+			height: 12vh;
 			display: flex;
 			flex-direction: column;
 			background: white;
@@ -263,17 +353,21 @@
 
 			.select_item {
 				width: 100vw;
-				height: 5.5vh;
+				height: 7.5vh;
 				display: flex;
 				align-items: center;
 
 				.item {
-					width: 50vw;
+					width: 33.33vw;
 					display: flex;
 					align-items: center;
 
 					.title {
 						width: 20vw;
+						height: 40rpx;
+						line-height: 40rpx;
+						font-size: 30rpx;
+						overflow: hidden;
 						margin-left: 5vw;
 					}
 
@@ -287,7 +381,7 @@
 
 		.information_container {
 			width: 100vw;
-			height: 80vh;
+			height: 78vh;
 
 			.information_item {
 				border-top: 1.5vh solid #f0f0f0;

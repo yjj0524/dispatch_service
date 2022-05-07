@@ -1,29 +1,31 @@
 <template>
 	<view class="booking_container">
-		<Navbar title="农户信息" background="white" icon_color="black" title_color="black" />
+		<Navbar title="主体信息" background="white" icon_color="black" title_color="black" />
 		<view class="search_container">
 			<view class="search_item">
 				<view class="search">
 					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
 					<input class="search_input" type="text" v-model="search_message" placeholder="输入姓名" />
 				</view>
-				<button class="search_btn" type="default" @click="FilterName">搜索</button>
+				<button class="search_btn" type="default" @click="FilterField">搜索</button>
 			</view>
 			<view class="select_item">
-				<view class="item" @click="village_show = true">
-					<view class="title">{{ village_value }}</view>
+				<!-- 选择镇 -->
+				<view class="item" @click="town_show = true">
+					<view class="title">{{ town_value }}</view>
 					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
-
-				<view class="item" @click="area_show = true">
-					<view class="title">{{ area_value }}</view>
+				<!-- 选择村 -->
+				<view class="item" @click="village_show = true">
+					<view class="title">{{ village_value }}</view>
 					<image class="img" src="@/static/images/booking/arrow.png" mode=""></image>
 				</view>
 			</view>
 		</view>
 		<view class="information_container">
-			<scroll-view scroll-y="true" style="height: 80vh;">
-				<view class="information_item" v-for="(item, index) in peasant_household_datas" :key="index" v-show="item.is_show">
+			<scroll-view scroll-y="true" style="height: 78vh;">
+				<view class="information_item" v-for="(item, index) in peasant_household_datas" :key="index"
+					v-show="item.is_show">
 					<view class="information">
 						<image class="portrait" src="@/static/images/booking/portrait.png" mode=""></image>
 						<text class="title">{{ item.ztmc }}</text>
@@ -37,6 +39,10 @@
 						<text class="title">村镇 :</text>
 						<text class="result">{{ item.zb }}</text>
 					</view>
+					<view class="item phone">
+						<text class="title">电话 :</text>
+						<text class="result">{{ item.lxdh }}</text>
+					</view>
 				</view>
 				<view class="more_container">
 					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
@@ -45,14 +51,15 @@
 				</view>
 			</scroll-view>
 		</view>
+		<!-- 镇选项 -->
+		<u-picker :show="town_show" :columns="town_columns" :closeOnClickOverlay="true" @close="town_show = false"
+			@cancel="town_show = false" @confirm="SelectTown" :defaultIndex="town_default_index">
+		</u-picker>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
 			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage"
 			:defaultIndex="village_default_index">
 		</u-picker>
-		<!-- 面积选项 -->
-		<u-picker :show="area_show" :columns="area_columns" :closeOnClickOverlay="true" @close="area_show = false"
-			@cancel="area_show = false" @confirm="SelectArea" :defaultIndex="area_default_index"></u-picker>
 		<!-- 确认框 -->
 		<u-modal :show="show_confirmation_box" :showCancelButton="true" title="确认要派遣吗？" :closeOnClickOverlay="true"
 			@cancel="show_confirmation_box = false" @confirm="BackToBookingArrange"
@@ -73,40 +80,17 @@
 				search_message: '',
 				show_loading: false,
 				page_index: 1,
+				town_complete_data: [],
+				town_show: false,
+				town_value: '所在镇',
+				town_columns: [
+					[],
+				],
+				town_default_index: [0],
 				village_show: false,
-				village_value: '选择村',
-				village_columns: [
-					[
-						'村一',
-						'村二',
-						'村三',
-						'村四',
-						'村五',
-						'村六',
-						'村七',
-						'村八',
-						'村九',
-						'村十',
-					],
-				],
+				village_value: '所在村',
+				village_columns: [],
 				village_default_index: [0],
-				area_show: false,
-				area_value: '耕作面积',
-				area_columns: [
-					[
-						'面积一',
-						'面积二',
-						'面积三',
-						'面积四',
-						'面积五',
-						'面积六',
-						'面积七',
-						'面积八',
-						'面积九',
-						'面积十',
-					],
-				],
-				area_default_index: [0],
 				show_confirmation_box: false,
 				// 农户数据
 				peasant_household_datas: [],
@@ -115,6 +99,12 @@
 		},
 		onLoad() {
 			this.GetJingYingZhuTiPage(this.page_index);
+			const town_data = uni.getStorageSync('town_data');
+			this.town_complete_data = town_data;
+
+			for (let i = 0; i < town_data.length; i++) {
+				this.town_columns[0].push(town_data[i].f_AreaName);
+			}
 		},
 		mounted() {
 
@@ -129,6 +119,7 @@
 					'rows': rows,
 					'page': page,
 				}).then(res => {
+					console.log('经营主体：');
 					console.log(res);
 					self.show_loading = false;
 					if (res.data.code == 200) {
@@ -144,27 +135,78 @@
 					}
 				})
 			},
+			// 获取村
+			GetVillage(pid) {
+				let self = this;
+
+				user.TownVillage(pid).then(res => {
+					console.log('村：');
+					console.log(res);
+					if (res.data.code == 200) {
+						let data = res.data.data;
+						let temp = [];
+						for (let i = 0; i < data.length; i++) {
+							temp.push(data[i].f_AreaName);
+						}
+
+						self.village_columns.push(temp);
+					}
+				})
+			},
 			// 加载更多
 			loading_more() {
 				let self = this;
 				self.search_message = '';
+				self.town_value = '所在镇';
+				self.town_default_index = [0];
+				self.village_value = '所在村';
+				self.village_default_index = [0];
+				self.village_columns.splice(0);
+				
 				self.peasant_household_datas.map(item => {
 					item.is_show = true;
 				})
 				self.GetJingYingZhuTiPage(self.page_index);
 			},
 			// 过滤名称
-			FilterName() {
+			FilterField() {
 				let self = this;
 				let name = self.search_message;
 				
 				self.peasant_household_datas.map(item => {
+					item.is_show = true;
+				})
+
+				self.peasant_household_datas.map(item => {
 					let index = item.ztmc.indexOf(name);
 					if (index == -1) {
 						item.is_show = false;
-					}
-					else {
+					} else {
 						item.is_show = true;
+					}
+				})
+				
+				// 过滤镇
+				self.peasant_household_datas.map(item => {
+					if (item.is_show && self.town_value != '所在镇') {
+						let index = item.zb.indexOf(self.town_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
+					}
+				})
+				
+				// 过滤村
+				self.peasant_household_datas.map(item => {
+					if (item.is_show && self.village_value != '所在村') {
+						let index = item.zb.indexOf(self.village_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
 					}
 				})
 			},
@@ -177,19 +219,29 @@
 				}, []);
 				return arr;
 			},
+			// 选择镇
+			SelectTown(e) {
+				// console.log(e);
+				if (this.town_columns[0].length) {
+					this.town_value = e.value[0];
+					this.town_default_index = e.indexs;
+					this.village_columns.splice(0);
+					this.village_value = '所在村';
+					this.village_default_index = [0];
+					this.FilterField();
+					this.GetVillage(this.town_complete_data[e.indexs[0]].f_AreaCode);
+				}
+				this.town_show = false;
+			},
 			// 选择村
 			SelectVillage(e) {
 				// console.log(e);
-				this.village_value = e.value[0];
-				this.village_default_index = e.indexs;
+				if (this.village_columns.length) {
+					this.village_value = e.value[0];
+					this.village_default_index = e.indexs;
+					this.FilterField();
+				}
 				this.village_show = false;
-			},
-			// 选择耕作面积
-			SelectArea(e) {
-				// console.log(e);
-				this.area_value = e.value[0];
-				this.area_default_index = e.indexs;
-				this.area_show = false;
 			},
 			// 显示确认框
 			ShowConfirmationBox(data) {
@@ -219,7 +271,7 @@
 
 		.search_container {
 			width: 100vw;
-			height: 10vh;
+			height: 12vh;
 			display: flex;
 			flex-direction: column;
 			background: white;
@@ -266,7 +318,7 @@
 
 			.select_item {
 				width: 100vw;
-				height: 5.5vh;
+				height: 7.5vh;
 				display: flex;
 				align-items: center;
 
@@ -277,6 +329,10 @@
 
 					.title {
 						width: 20vw;
+						height: 40rpx;
+						line-height: 40rpx;
+						font-size: 30rpx;
+						overflow: hidden;
 						margin-left: 5vw;
 					}
 
@@ -290,7 +346,7 @@
 
 		.information_container {
 			width: 100vw;
-			height: 80vh;
+			height: 78vh;
 
 			.information_item {
 				border-top: 1.5vh solid #f0f0f0;

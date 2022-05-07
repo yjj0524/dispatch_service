@@ -3,7 +3,7 @@ import http from '../utils/http';
 
 const user = {
 	// 登录
-	login(data) {
+	Login(data) {
 		let params = {
 			method: 'POST',
 			url: '/login',
@@ -11,9 +11,19 @@ const user = {
 		}
 		return http(params);
 	},
+	
+	// 镇村
+	TownVillage(pid) {
+		let params = {
+			method: 'GET',
+			url: `/data/areas/${pid}`,
+			data: {}
+		}
+		return http(params);
+	},
 
 	// 农机驾驶员(分页获取)
-	nongJiJiaShiYuanPage(data) {
+	NongJiJiaShiYuanPage(data) {
 		let params = {
 			method: 'GET',
 			url: '/nONGJIFramework/nongJiJiaShiYuan/page',

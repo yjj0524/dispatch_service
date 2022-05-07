@@ -8,10 +8,10 @@
 			</view>
 			<view class="item state">
 				<text class="title">状态 :</text>
-				<text class="result allow">可执行</text>
+				<text class="result allow">可调度</text>
 			</view>
 			<view class="item villages_town">
-				<text class="title">村镇 :</text>
+				<text class="title">地址 :</text>
 				<text class="result">{{ villages_town }}</text>
 			</view>
 			<view class="item farmer" @click="JumpToDispatchFarmer">
@@ -34,7 +34,7 @@
 				<text class="result">{{ work_time }}天</text>
 			</view>
 			<view class="item machine" @click="JumpToDispatchMachine">
-				<text class="title">操作农机 :</text>
+				<text class="title">作业农机 :</text>
 				<text class="result">{{ machine }}</text>
 				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>

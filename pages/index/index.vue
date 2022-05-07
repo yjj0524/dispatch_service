@@ -36,6 +36,8 @@
 </template>
 
 <script>
+	import user from '@/api/api.js';
+	
 	export default {
 		data() {
 			return {
@@ -43,9 +45,21 @@
 			}
 		},
 		mounted() {
-
+			this.GetTownVillage();
 		},
 		methods: {
+			// 获取镇村
+			GetTownVillage() {
+				let self = this;
+				
+				user.TownVillage('310120').then(res => {
+					console.log('镇：');
+					console.log(res);
+					if (res.data.code == 200) {
+						self.$utils.setStorage("town_data", res.data.data);
+					}
+				})
+			},
 			// 跳转到预约页
 			JumpToBooking() {
 				uni.navigateTo({

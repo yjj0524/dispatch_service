@@ -1,13 +1,6 @@
 const baseUrl = 'http://www.shsninfo.com:1238';
 const request = (opts) => {
-	// #ifdef H5
 	const url = process.env.NODE_ENV === 'development' ? `/api${opts.url}` : baseUrl + opts.url;
-	console.log(`当前H5环境：${process.env.NODE_ENV}, url:${url}`);
-	// #endif
-	// #ifdef APP-PLUS || MP
-	const url = baseUrl + opts.url;
-	console.log(`当前APP环境：${process.env.NODE_ENV}, url:${url}`);
-	// #endif
 	const token = uni.getStorageSync('user_info')?.token;
 	var httpDefaultOpts = {
 		url: url,
