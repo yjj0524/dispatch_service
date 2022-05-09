@@ -8,7 +8,7 @@
     /* 5+App特有相关 */
     "app-plus" : {
         "usingComponents" : true,
-        "nvueStyleCompiler" : "uni-app",
+        "nvueStyleCompiler" : "农机预约调度服务",
         "compilerVersion" : 3,
         "splashscreen" : {
             //首页白屏时不关闭启动界面

@@ -58,6 +58,12 @@
 			}
 		},
 		{
+			"path": "pages/uploadReport/uploadReport", // 申报
+			"style": {
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/statistics/statistics", // 预约调度统计
 			"style": {
 				"navigationStyle": "custom"

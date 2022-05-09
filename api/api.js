@@ -32,6 +32,16 @@ const user = {
 		return http(params);
 	},
 
+	// 农机驾驶员(更新)
+	NongJiJiaShiYuan(f_id, data) {
+		let params = {
+			method: 'PUT',
+			url: `/nONGJIFramework/nongJiJiaShiYuan/${f_id}`,
+			data: data
+		}
+		return http(params);
+	},
+
 	// 农机准驾车型代号
 	NJZJCXDH(f_id) {
 		let params = {

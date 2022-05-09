@@ -44,7 +44,6 @@
 					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
 					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
 				</view>
-				<image class="img" src="@/static/images/index/arrow.png" mode=""></image>
 			</view>
 		</view>
 		<button class="submit_booking_btn" type="default" @click="ShowConfirmationBox">提 交 调 度</button>
@@ -322,12 +321,12 @@
 			}
 
 			.item {
-				height: 100rpx;
+				height: 7vh;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
 				padding: 0 3vw;
-				font-size: 35rpx;
+				font-size: 30rpx;
 				border-bottom: 1rpx solid #e5e5e5;
 
 				.result {

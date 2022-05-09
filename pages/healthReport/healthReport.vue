@@ -24,23 +24,19 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 78vh;">
-				<u-index-list :index-list="indexList" :sticky="false" customNavHeight="120">
-					<template v-for="(item, index) in itemArr">
-						<u-index-item>
-							<!-- #ifndef APP-NVUE -->
-							<u-index-anchor :text="indexList[index]"></u-index-anchor>
-							<!-- #endif -->
-							<view class="list_cell" v-for="(cell, index) in item" :key="index">
-								<image class="portrait_img" src="@/static/images/booking/portrait.png" mode=""></image>
-								<view class="message">
-									<text class="title">{{ cell }}</text>
-									<text class="villages_town">镇村</text>
-								</view>
-								<u-button class="report_btn" :ripple="true">申报</u-button>
-							</view>
-						</u-index-item>
-					</template>
-				</u-index-list>
+				<view class="item" v-for="(item, index) in driver_datas" :key="index">
+					<image class="portrait_img" src="@/static/images/booking/portrait.png" mode=""></image>
+					<view class="message">
+						<text class="title">{{ item.xingMing }}</text>
+						<text class="villages_town">{{ item.zhuZhi }}</text>
+					</view>
+					<u-button class="report_btn" :ripple="true" @click="JumpToUploadReport(item)">申报</u-button>
+				</view>
+				<view class="more_container">
+					<u-loadmore class="loading_icon" status="loading" loadingText="加载中" loadingIcon="spinner"
+						v-show="show_loading" />
+					<view class="more" v-show="!show_loading" @click="LoadingMore">加载更多</view>
+				</view>
 			</scroll-view>
 		</view>
 		<!-- 镇选项 -->
@@ -49,7 +45,8 @@
 		</u-picker>
 		<!-- 村选项 -->
 		<u-picker :show="village_show" :columns="village_columns" :closeOnClickOverlay="true"
-			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage" :defaultIndex="village_default_index">
+			@close="village_show = false" @cancel="village_show = false" @confirm="SelectVillage"
+			:defaultIndex="village_default_index">
 		</u-picker>
 	</view>
 </template>
@@ -64,6 +61,10 @@
 		},
 		data() {
 			return {
+				show_loading: false,
+				page_index: 1,
+				// 农机驾驶员数据
+				driver_datas: [],
 				indexList: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
 					"T", "U", "V", "W", "X", "Y", "Z"
 				],
@@ -105,10 +106,11 @@
 				village_show: false,
 				village_value: '所在村',
 				village_columns: [],
-				village_default_index: [5],
+				village_default_index: [0],
 			}
 		},
 		mounted() {
+			this.GetNongJiJiaShiYuanPage(this.page_index);
 			const town_data = uni.getStorageSync('town_data');
 			this.town_complete_data = town_data;
 
@@ -117,6 +119,46 @@
 			}
 		},
 		methods: {
+			// 获取农机驾驶员(分页获取)
+			GetNongJiJiaShiYuanPage(page, rows = 20) {
+				let self = this;
+				self.show_loading = true;
+
+				user.NongJiJiaShiYuanPage({
+					'rows': rows,
+					'page': page,
+				}).then(res => {
+					console.log('驾驶员：');
+					console.log(res);
+					self.show_loading = false;
+					if (res.data.code == 200) {
+						let data = res.data.data.rows;
+						data.map(item => {
+							item.is_show = true
+						});
+						self.driver_datas = self.driver_datas.concat(data);
+						self.driver_datas = self.RemoveDuplicateObj(self.driver_datas);
+						if (data.length == rows) {
+							self.page_index++;
+						}
+					}
+				})
+			},
+			// 加载更多
+			LoadingMore() {
+				let self = this;
+				self.search_message = '';
+				self.town_value = '所在镇';
+				self.town_default_index = [0];
+				self.village_value = '所在村';
+				self.village_default_index = [0];
+				self.village_columns.splice(0);
+				
+				self.driver_datas.map(item => {
+					item.is_show = true;
+				})
+				self.GetNongJiJiaShiYuanPage(self.page_index);
+			},
 			// 获取村
 			GetVillage(pid) {
 				let self = this;
@@ -156,6 +198,21 @@
 					this.village_default_index = e.indexs;
 				}
 				this.village_show = false;
+			},
+			// 数组对象去重
+			RemoveDuplicateObj(arr) {
+				let obj = {};
+				arr = arr.reduce((newArr, next) => {
+					obj[next.f_Id] ? "" : (obj[next.f_Id] = true && newArr.push(next));
+					return newArr;
+				}, []);
+				return arr;
+			},
+			// 申报
+			JumpToUploadReport(data) {
+				uni.navigateTo({
+					url: '../uploadReport/uploadReport?data=' + JSON.stringify(data)
+				});
 			},
 		}
 	}
@@ -248,10 +305,10 @@
 			width: 100vw;
 			height: 76vh;
 
-			.list_cell {
+			.item {
 				display: flex;
 				align-items: center;
-				justify-content: flex-start;
+				justify-content: space-between;
 				box-sizing: border-box;
 				width: 100%;
 				padding: 0 24rpx;
@@ -265,7 +322,6 @@
 				.portrait_img {
 					width: 100rpx;
 					height: 100rpx;
-					margin-right: 7vw;
 				}
 
 				.message {
@@ -280,7 +336,7 @@
 
 					.villages_town {
 						color: #aeaeae;
-						font-size: 30rpx;
+						font-size: 25rpx;
 					}
 				}
 
@@ -292,6 +348,22 @@
 					font-size: 35rpx;
 					color: white;
 					background-image: linear-gradient(#3dbffc, #4a71fc);
+				}
+			}
+
+			.more_container {
+				width: 100vw;
+				height: 100rpx;
+				margin-top: 1vh;
+				display: flex;
+				justify-content: center;
+
+				.more {
+					height: 100rpx;
+					line-height: 100rpx;
+					font-size: 35rpx;
+					text-align: center;
+					color: red;
 				}
 			}
 		}

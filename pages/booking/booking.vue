@@ -58,7 +58,6 @@
 						<view class="photo_container">
 							<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
 						</view>
-						<image class="arrow" src="@/static/images/index/arrow.png" mode=""></image>
 					</view>
 				</view>
 				<view class="more_container">
