@@ -3,11 +3,11 @@
 		<Navbar title="预约调度统计" icon_color="#ffffff" title_color="#ffffff" border_bottom_color="transparent" />
 		<view class="tabs_container">
 			<text class="statistics_type" :class="[statistics_type_select_index == index ? 'select' : '']"
-				v-for="(item, index) of 4" :key="index" @click="ChangeStatisticsType(index)">统计类型</text>
+				v-for="(item, index) in statistics_type_data" :key="index"
+				@click="ChangeStatistics(item.type, index)">{{ item.title }}</text>
 		</view>
 		<view class="information_container">
-			<canvas canvas-id="JjjddMljoQxuUyfliJFrbJJKckcUnYOo" id="JjjddMljoQxuUyfliJFrbJJKckcUnYOo" class="charts"
-				@touchend="tap" />
+			<canvas canvas-id="eCharts_el" id="eCharts_el" class="charts" @touchend="tap" />
 		</view>
 	</view>
 </template>
@@ -15,6 +15,7 @@
 <script>
 	import Navbar from '@/components/navbar/navbar.vue';
 	import uCharts from '@/node_modules/@qiun/ucharts/u-charts.js';
+	import user from '@/api/api.js';
 	var uChartsInstance = {};
 
 	export default {
@@ -23,6 +24,15 @@
 		},
 		data() {
 			return {
+				statistics_type_data: [{
+						type: 1,
+						title: '月份统计',
+					},
+					{
+						type: 2,
+						title: '区域统计',
+					}
+				],
 				statistics_type_select_index: 0,
 				cWidth: 0,
 				cHeight: 0
@@ -33,47 +43,95 @@
 		},
 		onShow: function() {},
 		onReady() {
-			// //这里的 750 对应 css .charts 的 width
-			// this.cWidth = uni.upx2px(750);
-			// //这里的 500 对应 css .charts 的 height
-			// this.cHeight = uni.upx2px(500);
-
 			// 获取屏幕高度
 			let self = this;
 			uni.getSystemInfo({
 				success(res) {
-					console.log(res.screenHeight); //屏幕高度  注意这里获得的高度宽度都是px 需要转换rpx
+					// console.log(res.screenWidth); //屏幕宽度
+					// console.log(res.screenHeight); //屏幕高度  注意这里获得的高度宽度都是px 需要转换rpx
 					console.log(res.windowWidth); //可使用窗口宽度
 					console.log(res.windowHeight); //可使用窗口高度
-					console.log(res.screenWidth); //屏幕宽度
 					self.cWidth = res.windowWidth / 1.03;
 					self.cHeight = res.windowHeight / 1.2;
 				}
 			});
 
-			this.getServerData();
+			this.GetReportByTime();
 		},
 		mounted() {
 
 		},
 		methods: {
-			ChangeStatisticsType(index) {
+			ChangeStatistics(type, index = 0) {
 				this.statistics_type_select_index = index;
+				switch (type) {
+					case 1:
+						this.GetReportByTime();
+						break;
+					case 2:
+						this.GetReportByArea();
+						break;
+					default:
+						break;
+				}
 			},
-
-			getServerData() {
-				let res = {
-					categories: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月",
-						"12月"
-					],
+			// 月份统计
+			GetReportByTime() {
+				let options = {
+					categories: [],
 					series: [{
-						name: "目标值",
-						data: [55, 26, 81, 33, 13, 34, 22, 53, 91, 12, 63, 23]
-					}, ]
+						name: "月统计",
+						data: []
+					}]
 				};
-				this.drawCharts('JjjddMljoQxuUyfliJFrbJJKckcUnYOo', res);
+
+				user.StatisticsMonth().then(res => {
+					console.log('月份统计：');
+					console.log(res);
+					self.show_loading = false;
+					if (res.data.code == 200) {
+						res.data.data.map(item => {
+							options.categories.push(item.itemvalue);
+							if (item.vcount) {
+								options.series[0].data.push(item.vcount);
+							} else {
+								options.series[0].data.push(0);
+							}
+						})
+
+						this.drawCharts('eCharts_el', options);
+					}
+				})
 			},
-			drawCharts(id, data) {
+			// 区域统计
+			GetReportByArea() {
+				let options = {
+					categories: [],
+					series: [{
+						name: "区域统计",
+						data: []
+					}]
+				};
+
+				user.StatisticsArea().then(res => {
+					console.log('区域统计：');
+					console.log(res);
+					self.show_loading = false;
+					if (res.data.code == 200) {
+						res.data.data.map(item => {
+							options.categories.push(item.f_areaname);
+							if (item.vcount) {
+								options.series[0].data.push(item.vcount);
+							} else {
+								options.series[0].data.push(0);
+							}
+						})
+
+						this.drawCharts('eCharts_el', options, true);
+					}
+				})
+			},
+			drawCharts(id, data, is_rotate = false) {
 				const ctx = uni.createCanvasContext(id, this);
 				uChartsInstance[id] = new uCharts({
 					type: "column",
@@ -83,11 +141,13 @@
 					categories: data.categories,
 					series: data.series,
 					animation: true,
+					fontSize: 10,
+					fontColor: '#5799fc',
 					background: "#FFFFFF",
 					// color: ["#FAC858", "#EE6666", "#FAC858", "#EE6666", "#73C0DE", "#3CA272", "#FC8452", "#9A60B4",
 					// 	"#ea7ccc"
 					// ],
-					padding: [15, 15, 0, 5],
+					padding: [25, 2, 0, 0],
 					legend: {
 						show: false,
 					},
@@ -99,6 +159,7 @@
 							min: 0
 						}]
 					},
+					rotate: is_rotate,
 					extra: {
 						column: {
 							type: "group",
@@ -161,8 +222,8 @@
 
 		.information_container {
 			width: 96vw;
-			height: 84vh;
-			margin: 2vh 0 0 2vw;
+			height: 86vh;
+			margin: 1vh 0 0 2vw;
 			background: white;
 			border-radius: 10rpx;
 			box-shadow: 0rpx 10rpx 10rpx #d6daea;

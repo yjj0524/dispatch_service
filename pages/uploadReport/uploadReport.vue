@@ -18,7 +18,7 @@
 				<view class="prove_container">
 					<view class="prove">健康证明 :</view>
 					<view class="prove_img_container">
-						<view class="img_item" v-for="(item, index) in prove_img_data" :key="index">
+						<view class="img_item" v-for="(item, index) in mark_file" :key="index">
 							<image src="@/static/images/booking/delete.png" mode="" class="img_delete"
 								@click="DeleteImage(index, index)"></image>
 							<image class="img" :src="item" mode="" @click="PreviewImage(index)"></image>
@@ -57,6 +57,7 @@
 			}
 		},
 		onLoad(data) {
+			// console.log(data.data);
 			if (JSON.stringify(data) != "{}") {
 				this.driver_data = JSON.parse(data.data);
 				console.log(this.driver_data);
@@ -72,29 +73,33 @@
 					sourceType: ['camera', 'album'],
 					success: (res) => {
 						let temp_file_paths = res.tempFilePaths;
-						temp_file_paths.map(item => {
-							self.prove_img_data.push(item);
-						})
+						// temp_file_paths.map(item => {
+						// 	self.prove_img_data.push(item);
+						// })
 
 						// 上传图片
 						let upUrl = "http://www.shsninfo.com:1238";
-						uni.uploadFile({
-							url: upUrl + '/system/annexesfile/Upload',
-							filePath: temp_file_paths[0],
-							file: temp_file_paths,
-							name: 'file',
-							success: (res) => {
-								console.log('上传图片成功:');
-								console.log(res);
-								var item = JSON.parse(res.data);
-								var url = upUrl + item.data;
-								console.log(url);
-								self.mark_file.push(url);
-							},
-							fail: (err) => {
-								console.log('上传图片失败:');
-								console.log(err)
-							}
+						temp_file_paths.map(item => {
+							uni.uploadFile({
+								url: upUrl + '/system/annexesfile/Upload',
+								filePath: item,
+								file: temp_file_paths,
+								name: 'file',
+								success: (res) => {
+									var data = JSON.parse(res.data);
+									if (data.code == 200) {
+										var url = upUrl + data.data;
+										console.log('上传图片成功:');
+										// console.log(res);
+										console.log(url);
+										self.mark_file.push(url);
+									}
+								},
+								fail: (err) => {
+									console.log('上传图片失败:');
+									console.log(err)
+								}
+							})
 						})
 					}
 				});
@@ -103,45 +108,43 @@
 			PreviewImage(index) {
 				let self = this;
 				uni.previewImage({
-					urls: self.prove_img_data,
+					urls: self.mark_file,
 					current: index,
 					loop: true
 				});
 			},
 			// 删除图片
 			DeleteImage(key) {
-				this.prove_img_data.splice(key, 1);
+				this.mark_file.splice(key, 1);
 			},
 			// 提交健康证明
 			SubmitMarkFile() {
 				let self = this;
+				let mark_file = [];
+				
+				if (!self.mark_file.length) {
+					self.$refs.uToast.show({
+						type: 'error',
+						position: 'bottom',
+						duration: 1200,
+						message: "请上传健康证明",
+						iconUrl: 'https://cdn.uviewui.com/uview/demo/toast/error.png',
+					})
+					
+					return;
+				}
+				
 				self.show_loading = true;
 				
-				user.NongJiJiaShiYuan(self.driver_data.f_Id, {
-					"f_Id": self.driver_data.f_Id,
-					"chuCiLingZhengRiQi": self.driver_data.chuCiLingZhengRiQi,
-					"dangAnBianHao": self.driver_data.dangAnBianHao,
-					"f_CreateDate": self.driver_data.f_CreateDate,
-					"f_CreateUserId": self.driver_data.f_CreateUserId,
-					"f_CreateUserName": self.driver_data.f_CreateUserName,
-					"f_DeleteMark": self.driver_data.f_DeleteMark,
-					"f_Description": self.driver_data.f_Description,
-					"f_EnabledMark": self.driver_data.f_EnabledMark,
-					"f_ModifyDate": self.driver_data.f_ModifyDate,
-					"f_ModifyUserId": self.driver_data.f_ModifyUserId,
-					"f_ModifyUserName": self.driver_data.f_ModifyUserName,
-					"f_SortCode": self.driver_data.f_SortCode,
-					"jiaShiZhengBianHao": self.driver_data.jiaShiZhengBianHao,
-					"suoZaiCun": self.driver_data.suoZaiCun,
-					"suoZaiZhen": self.driver_data.suoZaiZhen,
-					"xingBie": self.driver_data.xingBie,
-					"xingMing": self.driver_data.xingMing,
-					"xuHao": self.driver_data.xuHao,
-					"youXiaoQiJieZhiRiQi": self.driver_data.youXiaoQiJieZhiRiQi,
-					"youXiaoQiQiShiRiQi": self.driver_data.youXiaoQiQiShiRiQi,
-					"zhunJiaJiXing": self.driver_data.zhunJiaJiXing,
-					"zhuZhi": self.driver_data.zhuZhi,
-					"markFile": self.mark_file,
+				self.mark_file.map(item => {
+					mark_file.push(item.replace(/\\/g, '/'));
+				})
+				debugger
+				return
+				
+				user.DriverMark({
+					"driver_Id": self.driver_data.f_Id,
+					"markFile": mark_file.join(),
 				}).then(res => {
 					console.log(res);
 					self.show_loading = false;
@@ -184,7 +187,7 @@
 
 				.item {
 					width: 100vw;
-					height: 8vh;
+					height: 6vh;
 					font-size: 30rpx;
 					display: flex;
 					align-items: center;
@@ -194,7 +197,7 @@
 
 				.head_portrait {
 					width: 100vw;
-					height: 13vh;
+					height: 10vh;
 					justify-content: flex-start;
 
 					.head_portrait_img {
@@ -267,8 +270,8 @@
 
 			.submit_btn {
 				width: 94vw;
-				height: 8vh;
-				line-height: 8vh;
+				height: 7vh;
+				line-height: 7vh;
 				font-size: 45rpx;
 				border-radius: 100rpx;
 				color: white;

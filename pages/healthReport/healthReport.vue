@@ -5,9 +5,9 @@
 			<view class="search_item">
 				<view class="search">
 					<image class="search_img" src="@/static/images/booking/search.png" mode=""></image>
-					<input class="search_input" type="text" value="" placeholder="输入姓名" />
+					<input class="search_input" type="text" v-model="search_message" placeholder="输入姓名" />
 				</view>
-				<button class="search_btn" type="default">搜索</button>
+				<button class="search_btn" type="default" @click="FilterField">搜索</button>
 			</view>
 			<view class="select_item">
 				<!-- 镇 -->
@@ -24,7 +24,7 @@
 		</view>
 		<view class="information_container">
 			<scroll-view scroll-y="true" style="height: 78vh;">
-				<view class="item" v-for="(item, index) in driver_datas" :key="index">
+				<view class="item" v-for="(item, index) in driver_datas" :key="index" v-show="item.is_show">
 					<image class="portrait_img" src="@/static/images/booking/portrait.png" mode=""></image>
 					<view class="message">
 						<text class="title">{{ item.xingMing }}</text>
@@ -61,6 +61,7 @@
 		},
 		data() {
 			return {
+				search_message: '',
 				show_loading: false,
 				page_index: 1,
 				// 农机驾驶员数据
@@ -120,7 +121,7 @@
 		},
 		methods: {
 			// 获取农机驾驶员(分页获取)
-			GetNongJiJiaShiYuanPage(page, rows = 20) {
+			GetNongJiJiaShiYuanPage(page, rows = 100) {
 				let self = this;
 				self.show_loading = true;
 
@@ -159,6 +160,49 @@
 				})
 				self.GetNongJiJiaShiYuanPage(self.page_index);
 			},
+			// 过滤
+			FilterField() {
+				let self = this;
+				let name = self.search_message;
+				
+				self.driver_datas.map(item => {
+					item.is_show = true;
+				})
+
+				// 过滤姓名
+				self.driver_datas.map(item => {
+					let index = item.xingMing.indexOf(name);
+					if (index == -1) {
+						item.is_show = false;
+					} else {
+						item.is_show = true;
+					}
+				})
+				
+				// 过滤镇
+				self.driver_datas.map(item => {
+					if (item.is_show && self.town_value != '所在镇') {
+						let index = item.zhuZhi.indexOf(self.town_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
+					}
+				})
+				
+				// 过滤村
+				self.driver_datas.map(item => {
+					if (item.is_show && self.village_value != '所在村') {
+						let index = item.zhuZhi.indexOf(self.village_value);
+						if (index == -1) {
+							item.is_show = false;
+						} else {
+							item.is_show = true;
+						}
+					}
+				})
+			},
 			// 获取村
 			GetVillage(pid) {
 				let self = this;
@@ -186,6 +230,7 @@
 					this.village_columns.splice(0);
 					this.village_value = '所在村';
 					this.village_default_index = [0];
+					this.FilterField();
 					this.GetVillage(this.town_complete_data[e.indexs[0]].f_AreaCode);
 				}
 				this.town_show = false;
@@ -196,6 +241,7 @@
 				if (this.village_columns.length) {
 					this.village_value = e.value[0];
 					this.village_default_index = e.indexs;
+					this.FilterField();
 				}
 				this.village_show = false;
 			},
@@ -311,7 +357,7 @@
 				justify-content: space-between;
 				box-sizing: border-box;
 				width: 100%;
-				padding: 0 24rpx;
+				padding: 0 3vw;
 				height: 150rpx;
 				font-size: 35rpx;
 				overflow: hidden;
@@ -325,7 +371,7 @@
 				}
 
 				.message {
-					width: 40vw;
+					width: 50vw;
 					display: flex;
 					align-items: flex-start;
 					flex-direction: column;

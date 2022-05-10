@@ -1,7 +1,7 @@
 <template>
-	<view class="navbar" :style="navbarStyle" @click="Back">
-		<u-icon class="back_img" name="arrow-left" :color="icon_color"></u-icon>
-		<text class="title" :style="titleStyle">{{ title }}</text>
+	<view class="navbar" :style="navbarStyle">
+		<u-icon class="back_img" name="arrow-left" :color="icon_color" @click="Back"></u-icon>
+		<text class="title" :style="titleStyle" @click="Back">{{ title }}</text>
 	</view>
 </template>
 
@@ -23,6 +23,7 @@
 		methods: {
 			Back() {
 				uni.navigateBack();
+				return false;
 			},
 		},
 		computed: {

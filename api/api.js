@@ -32,11 +32,11 @@ const user = {
 		return http(params);
 	},
 
-	// 农机驾驶员(更新)
-	NongJiJiaShiYuan(f_id, data) {
+	// 驾驶员状态
+	DriverMark(data) {
 		let params = {
-			method: 'PUT',
-			url: `/nONGJIFramework/nongJiJiaShiYuan/${f_id}`,
+			method: 'POST',
+			url: '/nONGJIFramework/driverMark',
 			data: data
 		}
 		return http(params);
@@ -111,5 +111,25 @@ const user = {
 		}
 		return http(params);
 	},
+	
+	// 统计(月份)
+	StatisticsMonth() {
+		let params = {
+			method: 'GET',
+			url: '/nONGJIFramework/reservationServices/GetReportByTime',
+			data: {}
+		}
+		return http(params);
+	},
+	
+	// 统计(区域)
+	StatisticsArea() {
+		let params = {
+			method: 'GET',
+			url: '/nONGJIFramework/reservationServices/GetReportByArea',
+			data: {}
+		}
+		return http(params);
+	}
 }
 export default user;

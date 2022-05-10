@@ -56,7 +56,8 @@
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
 						<view class="photo_container">
-							<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
+							<!-- <image class="photo" src="@/static/images/booking/photo.png" mode=""></image> -->
+							<image v-for="(value, key) in item.markFile" :key="key" class="photo" :src="value" mode=""></image>
 						</view>
 					</view>
 				</view>
@@ -145,7 +146,13 @@
 					if (res.data.code == 200) {
 						let data = res.data.data.rows;
 						data.map(item => {
-							item.is_show = true
+							item.is_show = true;
+							if (item.markFile) {
+								item.markFile = item.markFile.split(',')
+							}
+							else {
+								item.markFile = [];
+							}
 						});
 						self.driver_datas = self.driver_datas.concat(data);
 						self.driver_datas = self.RemoveDuplicateObj(self.driver_datas);
