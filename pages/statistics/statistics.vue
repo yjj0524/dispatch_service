@@ -147,7 +147,7 @@
 					// color: ["#FAC858", "#EE6666", "#FAC858", "#EE6666", "#73C0DE", "#3CA272", "#FC8452", "#9A60B4",
 					// 	"#ea7ccc"
 					// ],
-					padding: [25, 2, 0, 0],
+					padding: is_rotate ? [25, -10, 0, 0] : [25, 2, 0, 0],
 					legend: {
 						show: false,
 					},

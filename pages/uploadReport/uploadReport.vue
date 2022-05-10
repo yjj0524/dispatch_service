@@ -89,6 +89,7 @@
 									var data = JSON.parse(res.data);
 									if (data.code == 200) {
 										var url = upUrl + data.data;
+										url = url.replace(/\\/g, '/')
 										console.log('上传图片成功:');
 										// console.log(res);
 										console.log(url);
@@ -135,12 +136,6 @@
 				}
 				
 				self.show_loading = true;
-				
-				self.mark_file.map(item => {
-					mark_file.push(item.replace(/\\/g, '/'));
-				})
-				debugger
-				return
 				
 				user.DriverMark({
 					"driver_Id": self.driver_data.f_Id,

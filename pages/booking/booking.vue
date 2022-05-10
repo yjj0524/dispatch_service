@@ -56,8 +56,9 @@
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
 						<view class="photo_container">
-							<!-- <image class="photo" src="@/static/images/booking/photo.png" mode=""></image> -->
-							<image v-for="(value, key) in item.markFile" :key="key" class="photo" :src="value" mode=""></image>
+							<image v-for="(value, key) in item.markFile" :key="key" class="photo" :src="value" mode=""
+								@click="PreviewImage(item.markFile, key)">
+							</image>
 						</view>
 					</view>
 				</view>
@@ -149,8 +150,7 @@
 							item.is_show = true;
 							if (item.markFile) {
 								item.markFile = item.markFile.split(',')
-							}
-							else {
+							} else {
 								item.markFile = [];
 							}
 						});
@@ -173,7 +173,7 @@
 				self.village_columns.splice(0);
 				self.driver_value = '状态';
 				self.driver_default_index = [0];
-				
+
 				self.driver_datas.map(item => {
 					item.is_show = true;
 				})
@@ -201,7 +201,7 @@
 			FilterField() {
 				let self = this;
 				let name = self.search_message;
-				
+
 				self.driver_datas.map(item => {
 					item.is_show = true;
 				})
@@ -215,7 +215,7 @@
 						item.is_show = true;
 					}
 				})
-				
+
 				// 过滤镇
 				self.driver_datas.map(item => {
 					if (item.is_show && self.town_value != '所在镇') {
@@ -227,7 +227,7 @@
 						}
 					}
 				})
-				
+
 				// 过滤村
 				self.driver_datas.map(item => {
 					if (item.is_show && self.village_value != '所在村') {
@@ -239,7 +239,7 @@
 						}
 					}
 				})
-				
+
 				// 过滤状态
 				self.driver_datas.map(item => {
 					if (item.is_show && self.driver_value != '状态') {
@@ -291,6 +291,15 @@
 				this.driver_default_index = e.indexs;
 				this.driver_show = false;
 				this.FilterField();
+			},
+			// 预览图片
+			PreviewImage(urls, index) {
+				let self = this;
+				uni.previewImage({
+					urls: urls,
+					current: index,
+					loop: true
+				});
 			},
 			// 跳转到农机预约安排页
 			JumpToBookingArrange(data) {
@@ -455,10 +464,13 @@
 
 				.photo_container {
 					width: 65vw;
+					display: flex;
+					align-items: center;
+					justify-content: flex-end;
 
 					.photo {
-						width: 15vw;
-						height: 10vw;
+						width: 80rpx;
+						height: 100rpx;
 						margin-left: 1vw;
 					}
 				}

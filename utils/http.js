@@ -1,6 +1,7 @@
 const baseUrl = 'http://www.shsninfo.com:1238';
 const request = (opts) => {
-	const url = process.env.NODE_ENV === 'development' ? `/api${opts.url}` : baseUrl + opts.url;
+	// const url = process.env.NODE_ENV === 'development' ? `/api${opts.url}` : baseUrl + opts.url;
+	const url = baseUrl + opts.url;
 	const token = uni.getStorageSync('user_info')?.token;
 	var httpDefaultOpts = {
 		url: url,

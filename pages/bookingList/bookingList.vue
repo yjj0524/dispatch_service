@@ -62,8 +62,8 @@
 					<view class="healthy_prove">
 						<text class="title">健康证明 :</text>
 						<view class="photo_container">
-							<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
-							<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
+							<image class="photo" v-for="(value, key) in item.drivermarkfile" :key="key" :src="value"
+								mode="" @click="PreviewImage(item.drivermarkfile, key)"></image>
 						</view>
 					</view>
 				</view>
@@ -140,18 +140,19 @@
 					if (res.data.code == 200) {
 						let data = res.data.data.rows;
 
-						for (let i = 0; i < data.length; i++) {
-							let item = data[i];
+						data.map(item => {
 							item.is_show = true;
 
-							if (item.stime) {
-								let index = item.stime.indexOf('T');
-
-								item.stime = item.stime.slice(0, index);
-
-								data[i].stime = item.stime;
+							if (item.drivermarkfile) {
+								item.drivermarkfile = item.drivermarkfile.split(',')
+							} else {
+								item.drivermarkfile = [];
 							}
-						}
+
+							if (item.stime) {
+								item.stime = item.stime.slice(0, item.stime.indexOf('T'));
+							}
+						})
 
 						self.service_list = self.service_list.concat(data);
 						self.service_list = self.RemoveDuplicateObj(self.service_list);
@@ -272,6 +273,15 @@
 				this.state_default_index = e.indexs;
 				this.state_show = false;
 				this.FilterField();
+			},
+			// 预览图片
+			PreviewImage(urls, index) {
+				let self = this;
+				uni.previewImage({
+					urls: urls,
+					current: index,
+					loop: true
+				});
 			},
 			// 跳转到调度服务页
 			JumpToDispatchService(data) {
@@ -440,10 +450,13 @@
 
 				.photo_container {
 					width: 65vw;
+					display: flex;
+					align-items: center;
+					justify-content: flex-end;
 
 					.photo {
-						width: 15vw;
-						height: 10vw;
+						width: 80rpx;
+						height: 100rpx;
 						margin-left: 1vw;
 					}
 				}

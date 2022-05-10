@@ -207,9 +207,9 @@
 		}
 
 		.submit_btn {
-			margin-top: 9vh;
+			margin-top: 7vh;
 			width: 90vw;
-			height: 7vh;
+			height: 8vh;
 			font-size: 45rpx;
 			border-radius: 100rpx;
 			color: white;

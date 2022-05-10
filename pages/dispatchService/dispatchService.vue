@@ -41,8 +41,8 @@
 			<view class="healthy_prove">
 				<text class="title">健康证明 :</text>
 				<view class="photo_container">
-					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
-					<image class="photo" src="@/static/images/booking/photo.png" mode=""></image>
+					<image class="photo" v-for="(item, index) in driver_mark_file" :key="index" :src="item" mode=""
+						@click="PreviewImage(driver_mark_file, index)"></image>
 				</view>
 			</view>
 		</view>
@@ -118,6 +118,8 @@
 				show_datetime: false,
 				// 当前时间
 				current_date: '',
+				// 健康证明
+				driver_mark_file: [],
 				// 预约确认框
 				show_confirmation_box: false,
 				// 显示调度成功容器
@@ -139,6 +141,7 @@
 				this.current_date = service_data.stime;
 				this.work_time = service_data.times;
 				this.machine = `${service_data.suoyouren} (${service_data.jixieleixing})`;
+				this.driver_mark_file = service_data.drivermarkfile;
 				console.log(this.service_data);
 			}
 		},
@@ -160,7 +163,7 @@
 			});
 		},
 		mounted() {
-			
+
 		},
 		methods: {
 			// 返回预约页面
@@ -179,7 +182,7 @@
 				this.task_type_value = e.value[0];
 				this.task_type_default_index = e.indexs;
 				this.task_type_show = false;
-				
+
 				this.GetWorkTime();
 			},
 			// 选择日期
@@ -195,6 +198,15 @@
 				this.show_datetime = false;
 				this.select_datetime = datetiem;
 				this.current_date = datetiem;
+			},
+			// 预览图片
+			PreviewImage(urls, index) {
+				let self = this;
+				uni.previewImage({
+					urls: urls,
+					current: index,
+					loop: true
+				});
 			},
 			// 跳转到派遣农机页
 			JumpToDispatchMachine() {
@@ -359,10 +371,13 @@
 
 				.photo_container {
 					width: 62vw;
+					display: flex;
+					align-items: center;
+					justify-content: flex-end;
 
 					.photo {
-						width: 15vw;
-						height: 10vw;
+						width: 80rpx;
+						height: 100rpx;
 						margin-left: 1vw;
 					}
 				}
